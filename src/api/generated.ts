@@ -130,6 +130,18 @@ export type PostApiV1SystemRuntimeEnvironmentBody = {
   environment: string;
 };
 
+export type GetApiV1SystemConnectionStatus200Holyrics = typeof GetApiV1SystemConnectionStatus200Holyrics[keyof typeof GetApiV1SystemConnectionStatus200Holyrics];
+
+
+export const GetApiV1SystemConnectionStatus200Holyrics = {
+  connected: 'connected',
+  disconnected: 'disconnected',
+} as const;
+
+export type GetApiV1SystemConnectionStatus200 = {
+  holyrics: GetApiV1SystemConnectionStatus200Holyrics;
+};
+
 export type GetApiV1TextsParams = {
 fields?: string;
 };
@@ -5667,6 +5679,116 @@ export function useGetApiV1SystemStyledModelsMap<TData = Awaited<ReturnType<type
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetApiV1SystemStyledModelsMapQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * Get connection status to Holyrics
+ */
+export type getApiV1SystemConnectionStatusResponse200 = {
+  data: GetApiV1SystemConnectionStatus200
+  status: 200
+}
+
+export type getApiV1SystemConnectionStatusResponseSuccess = (getApiV1SystemConnectionStatusResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV1SystemConnectionStatusResponse = (getApiV1SystemConnectionStatusResponseSuccess)
+
+export const getGetApiV1SystemConnectionStatusUrl = () => {
+
+
+
+
+  return `/api/v1/system/connection-status`
+}
+
+export const getApiV1SystemConnectionStatus = async ( options?: RequestInit): Promise<getApiV1SystemConnectionStatusResponse> => {
+
+  return holyricsInstance<getApiV1SystemConnectionStatusResponse>(getGetApiV1SystemConnectionStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetApiV1SystemConnectionStatusQueryKey = () => {
+    return [
+    `/api/v1/system/connection-status`
+    ] as const;
+    }
+
+
+export const getGetApiV1SystemConnectionStatusQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiV1SystemConnectionStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>> = ({ signal }) => getApiV1SystemConnectionStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiV1SystemConnectionStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>>
+export type GetApiV1SystemConnectionStatusQueryError = unknown
+
+
+export function useGetApiV1SystemConnectionStatus<TData = Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiV1SystemConnectionStatus<TData = Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiV1SystemConnectionStatus<TData = Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiV1SystemConnectionStatus<TData = Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1SystemConnectionStatus>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiV1SystemConnectionStatusQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

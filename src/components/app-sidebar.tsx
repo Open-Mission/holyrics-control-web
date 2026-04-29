@@ -60,7 +60,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex flex-row items-center gap-2 p-4">
         <div className="flex aspect-square size-8 items-center justify-center rounded-sm overflow-hidden">
-          <img src="/logo.png" alt="Holyrics Logo" className="size-full object-cover" />
+          <img src="/logo.png" alt="Holyrics Logo" className="size-full object-container" />
         </div>
         <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
           <span className="font-semibold uppercase tracking-wider">Holyrics</span>
@@ -89,10 +89,10 @@ export function AppSidebar() {
       <SidebarFooter className="p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-             <SidebarMenuButton className="group-data-[collapsible=icon]:size-8">
-               <PlusCircle />
-               <span className="group-data-[collapsible=icon]:hidden">Nova Projeção</span>
-             </SidebarMenuButton>
+            <SidebarMenuButton className="group-data-[collapsible=icon]:size-8">
+              <PlusCircle />
+              <span className="group-data-[collapsible=icon]:hidden">Nova Projeção</span>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
