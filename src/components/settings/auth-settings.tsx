@@ -7,11 +7,15 @@ import { KeyIcon, LogInIcon, RefreshCwIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { getApiV1AuthLoginHash, getApiV1AuthLoginToken } from '@/lib/holyrics'
+import { SetupWizard } from '@/components/setup-wizard'
+import { useSetupStore } from '@/hooks/use-setup-store'
 
 export function AuthSettings() {
   const [token, setToken] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showSetup, setShowSetup] = useState(false)
   const queryClient = useQueryClient()
+  const setup = useSetupStore()
 
   const handleLoginToken = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,6 +25,7 @@ export function AuthSettings() {
       await getApiV1AuthLoginToken({ token })
       toast.success('Login efetuado com sucesso!')
       queryClient.invalidateQueries()
+      if (setup.needsSetup) setShowSetup(true)
     } catch (error) {
       toast.error('Erro ao efetuar login com token')
     } finally {
@@ -34,6 +39,7 @@ export function AuthSettings() {
       await getApiV1AuthLoginHash()
       toast.success('Sessão restaurada com sucesso!')
       queryClient.invalidateQueries()
+      if (setup.needsSetup) setShowSetup(true)
     } catch (error) {
       toast.error('Nenhuma sessão ativa encontrada')
     } finally {
@@ -42,6 +48,7 @@ export function AuthSettings() {
   }
 
   return (
+    <div className="flex flex-col gap-6">
     <div className="grid gap-6 md:grid-cols-2 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Card className="border-primary/50 shadow-md bg-card/50 backdrop-blur-sm overflow-hidden group hover:border-primary transition-all duration-300">
         <CardHeader className="relative">
@@ -110,6 +117,14 @@ export function AuthSettings() {
           </CardFooter>
         </form>
       </Card>
+    </div>
+
+    {/* Setup wizard — shown after first successful connection */}
+    {showSetup && (
+      <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+        <SetupWizard onClose={() => setShowSetup(false)} />
+      </div>
+    )}
     </div>
   )
 }

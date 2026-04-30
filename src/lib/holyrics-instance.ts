@@ -39,7 +39,7 @@ export const holyricsInstance = async <T>(
     const response = await fetch(fullUrl, {
       method,
       headers: {
-        'Content-Type': 'application/json',
+        ...(data ? { 'Content-Type': 'application/json' } : {}),
         ...headers,
       },
       ...(data ? { body: JSON.stringify(data) } : {}),
