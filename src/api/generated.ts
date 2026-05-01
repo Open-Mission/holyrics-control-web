@@ -72,6 +72,14 @@ export type PostApiV1PresentationF8Body = {
   show: boolean;
 };
 
+export type PostApiV1PresentationF9Body = {
+  show: boolean;
+};
+
+export type PostApiV1PresentationF10Body = {
+  show: boolean;
+};
+
 export type PostApiV1PresentationGoToIndexBody = {
   /**
      * @minimum -9007199254740991
@@ -261,8 +269,151 @@ export type PostApiV1BackgroundsHueBody = {
   hue: number;
 };
 
+export type GetApiV1SchedulesCurrent200 = {
+  id?: string;
+  name?: string;
+  type?: string;
+  datetime?: string;
+  lyrics_playlist?: {
+  id?: string;
+  song_id?: string;
+  name?: string;
+  type?: string;
+  artist?: string;
+  album?: string;
+  key?: string;
+  image?: string;
+  video?: string;
+  audio?: string;
+  path?: string;
+  active?: boolean;
+  index?: number;
+  [key: string]: unknown;
+}[];
+  media_playlist?: {
+  id?: string;
+  song_id?: string;
+  name?: string;
+  type?: string;
+  artist?: string;
+  album?: string;
+  key?: string;
+  image?: string;
+  video?: string;
+  audio?: string;
+  path?: string;
+  active?: boolean;
+  index?: number;
+  [key: string]: unknown;
+}[];
+  [key: string]: unknown;
+}[] | {
+  id?: string;
+  name?: string;
+  type?: string;
+  datetime?: string;
+  lyrics_playlist?: {
+  id?: string;
+  song_id?: string;
+  name?: string;
+  type?: string;
+  artist?: string;
+  album?: string;
+  key?: string;
+  image?: string;
+  video?: string;
+  audio?: string;
+  path?: string;
+  active?: boolean;
+  index?: number;
+  [key: string]: unknown;
+}[];
+  media_playlist?: {
+  id?: string;
+  song_id?: string;
+  name?: string;
+  type?: string;
+  artist?: string;
+  album?: string;
+  key?: string;
+  image?: string;
+  video?: string;
+  audio?: string;
+  path?: string;
+  active?: boolean;
+  index?: number;
+  [key: string]: unknown;
+}[];
+  [key: string]: unknown;
+};
+
+export type GetApiV1SchedulesParams = {
+/**
+ * @minimum 1
+ * @maximum 12
+ */
+month?: number;
+year?: number;
+};
+
+export type GetApiV1Schedules200ItemLyricsPlaylistItem = {
+  id?: string;
+  song_id?: string;
+  name?: string;
+  type?: string;
+  artist?: string;
+  album?: string;
+  key?: string;
+  image?: string;
+  video?: string;
+  audio?: string;
+  path?: string;
+  active?: boolean;
+  index?: number;
+  [key: string]: unknown;
+};
+
+export type GetApiV1Schedules200ItemMediaPlaylistItem = {
+  id?: string;
+  song_id?: string;
+  name?: string;
+  type?: string;
+  artist?: string;
+  album?: string;
+  key?: string;
+  image?: string;
+  video?: string;
+  audio?: string;
+  path?: string;
+  active?: boolean;
+  index?: number;
+  [key: string]: unknown;
+};
+
+export type GetApiV1Schedules200Item = {
+  id?: string;
+  name?: string;
+  type?: string;
+  datetime?: string;
+  lyrics_playlist?: GetApiV1Schedules200ItemLyricsPlaylistItem[];
+  media_playlist?: GetApiV1Schedules200ItemMediaPlaylistItem[];
+  [key: string]: unknown;
+};
+
 export type PostApiV1SchedulesSetBody = {
-  id: string;
+  id?: string;
+  event_id?: string;
+};
+
+export type PostApiV1SchedulesShowBody = {
+  id?: string;
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     */
+  index?: number;
+  type?: string;
+  song_id?: string;
 };
 
 export type PostApiV1TeamsSongGroupsAddBody = {
@@ -291,6 +442,10 @@ export type PostApiV1CommunicationPanelTextBody = {
 export type PostApiV1CommunicationPanelAlertBody = {
   text: string;
   show: boolean;
+};
+
+export type PostApiV1BibleThemeBody = {
+  id: string;
 };
 
 export type PostApiV1SettingsTranslationPresetsApplyBody = {
@@ -1708,7 +1863,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
  * Get the current lyrics playlist
  */
 export type getApiV1PlaylistsLyricsResponse200 = {
-  data: void
+  data: unknown
   status: 200
 }
 
@@ -1818,7 +1973,7 @@ export function useGetApiV1PlaylistsLyrics<TData = Awaited<ReturnType<typeof get
  * Get the current media playlist
  */
 export type getApiV1PlaylistsMediaResponse200 = {
-  data: void
+  data: unknown
   status: 200
 }
 
@@ -1928,7 +2083,7 @@ export function useGetApiV1PlaylistsMedia<TData = Awaited<ReturnType<typeof getA
  * Add an item to the playlist
  */
 export type postApiV1PlaylistsAddResponse200 = {
-  data: void
+  data: unknown
   status: 200
 }
 
@@ -2008,7 +2163,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
  * Get all saved playlists
  */
 export type getApiV1PlaylistsSavedResponse200 = {
-  data: void
+  data: unknown
   status: 200
 }
 
@@ -2650,6 +2805,544 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getPostApiV1PresentationF8ToggleMutationOptions(options), queryClient);
+    }
+
+/**
+ * Get No Lyrics (F9) status
+ */
+export type getApiV1PresentationF9Response200 = {
+  data: void
+  status: 200
+}
+
+export type getApiV1PresentationF9ResponseSuccess = (getApiV1PresentationF9Response200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV1PresentationF9Response = (getApiV1PresentationF9ResponseSuccess)
+
+export const getGetApiV1PresentationF9Url = () => {
+
+
+
+
+  return `/api/v1/presentation/f9`
+}
+
+export const getApiV1PresentationF9 = async ( options?: RequestInit): Promise<getApiV1PresentationF9Response> => {
+
+  return holyricsInstance<getApiV1PresentationF9Response>(getGetApiV1PresentationF9Url(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetApiV1PresentationF9QueryKey = () => {
+    return [
+    `/api/v1/presentation/f9`
+    ] as const;
+    }
+
+
+export const getGetApiV1PresentationF9QueryOptions = <TData = Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiV1PresentationF9QueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1PresentationF9>>> = ({ signal }) => getApiV1PresentationF9({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiV1PresentationF9QueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1PresentationF9>>>
+export type GetApiV1PresentationF9QueryError = unknown
+
+
+export function useGetApiV1PresentationF9<TData = Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiV1PresentationF9>>,
+          TError,
+          Awaited<ReturnType<typeof getApiV1PresentationF9>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiV1PresentationF9<TData = Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiV1PresentationF9>>,
+          TError,
+          Awaited<ReturnType<typeof getApiV1PresentationF9>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiV1PresentationF9<TData = Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiV1PresentationF9<TData = Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF9>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiV1PresentationF9QueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * Set No Lyrics (F9) status
+ */
+export type postApiV1PresentationF9Response200 = {
+  data: void
+  status: 200
+}
+
+export type postApiV1PresentationF9ResponseSuccess = (postApiV1PresentationF9Response200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV1PresentationF9Response = (postApiV1PresentationF9ResponseSuccess)
+
+export const getPostApiV1PresentationF9Url = () => {
+
+
+
+
+  return `/api/v1/presentation/f9`
+}
+
+export const postApiV1PresentationF9 = async (postApiV1PresentationF9Body: PostApiV1PresentationF9Body, options?: RequestInit): Promise<postApiV1PresentationF9Response> => {
+
+  return holyricsInstance<postApiV1PresentationF9Response>(getPostApiV1PresentationF9Url(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV1PresentationF9Body,)
+  }
+);}
+
+
+
+
+export const getPostApiV1PresentationF9MutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF9>>, TError,{data: PostApiV1PresentationF9Body}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF9>>, TError,{data: PostApiV1PresentationF9Body}, TContext> => {
+
+const mutationKey = ['postApiV1PresentationF9'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1PresentationF9>>, {data: PostApiV1PresentationF9Body}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiV1PresentationF9(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiV1PresentationF9MutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1PresentationF9>>>
+    export type PostApiV1PresentationF9MutationBody = PostApiV1PresentationF9Body
+    export type PostApiV1PresentationF9MutationError = unknown
+
+    export const usePostApiV1PresentationF9 = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF9>>, TError,{data: PostApiV1PresentationF9Body}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiV1PresentationF9>>,
+        TError,
+        {data: PostApiV1PresentationF9Body},
+        TContext
+      > => {
+      return useMutation(getPostApiV1PresentationF9MutationOptions(options), queryClient);
+    }
+
+/**
+ * Toggle No Lyrics (F9) status
+ */
+export type postApiV1PresentationF9ToggleResponse200 = {
+  data: void
+  status: 200
+}
+
+export type postApiV1PresentationF9ToggleResponseSuccess = (postApiV1PresentationF9ToggleResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV1PresentationF9ToggleResponse = (postApiV1PresentationF9ToggleResponseSuccess)
+
+export const getPostApiV1PresentationF9ToggleUrl = () => {
+
+
+
+
+  return `/api/v1/presentation/f9/toggle`
+}
+
+export const postApiV1PresentationF9Toggle = async ( options?: RequestInit): Promise<postApiV1PresentationF9ToggleResponse> => {
+
+  return holyricsInstance<postApiV1PresentationF9ToggleResponse>(getPostApiV1PresentationF9ToggleUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getPostApiV1PresentationF9ToggleMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF9Toggle>>, TError,void, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF9Toggle>>, TError,void, TContext> => {
+
+const mutationKey = ['postApiV1PresentationF9Toggle'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1PresentationF9Toggle>>, void> = () => {
+
+
+          return  postApiV1PresentationF9Toggle(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiV1PresentationF9ToggleMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1PresentationF9Toggle>>>
+
+    export type PostApiV1PresentationF9ToggleMutationError = unknown
+
+    export const usePostApiV1PresentationF9Toggle = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF9Toggle>>, TError,void, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiV1PresentationF9Toggle>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPostApiV1PresentationF9ToggleMutationOptions(options), queryClient);
+    }
+
+/**
+ * Get Black Screen (F10) status
+ */
+export type getApiV1PresentationF10Response200 = {
+  data: void
+  status: 200
+}
+
+export type getApiV1PresentationF10ResponseSuccess = (getApiV1PresentationF10Response200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV1PresentationF10Response = (getApiV1PresentationF10ResponseSuccess)
+
+export const getGetApiV1PresentationF10Url = () => {
+
+
+
+
+  return `/api/v1/presentation/f10`
+}
+
+export const getApiV1PresentationF10 = async ( options?: RequestInit): Promise<getApiV1PresentationF10Response> => {
+
+  return holyricsInstance<getApiV1PresentationF10Response>(getGetApiV1PresentationF10Url(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetApiV1PresentationF10QueryKey = () => {
+    return [
+    `/api/v1/presentation/f10`
+    ] as const;
+    }
+
+
+export const getGetApiV1PresentationF10QueryOptions = <TData = Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiV1PresentationF10QueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1PresentationF10>>> = ({ signal }) => getApiV1PresentationF10({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiV1PresentationF10QueryResult = NonNullable<Awaited<ReturnType<typeof getApiV1PresentationF10>>>
+export type GetApiV1PresentationF10QueryError = unknown
+
+
+export function useGetApiV1PresentationF10<TData = Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiV1PresentationF10>>,
+          TError,
+          Awaited<ReturnType<typeof getApiV1PresentationF10>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiV1PresentationF10<TData = Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiV1PresentationF10>>,
+          TError,
+          Awaited<ReturnType<typeof getApiV1PresentationF10>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiV1PresentationF10<TData = Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiV1PresentationF10<TData = Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1PresentationF10>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiV1PresentationF10QueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * Set Black Screen (F10) status
+ */
+export type postApiV1PresentationF10Response200 = {
+  data: void
+  status: 200
+}
+
+export type postApiV1PresentationF10ResponseSuccess = (postApiV1PresentationF10Response200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV1PresentationF10Response = (postApiV1PresentationF10ResponseSuccess)
+
+export const getPostApiV1PresentationF10Url = () => {
+
+
+
+
+  return `/api/v1/presentation/f10`
+}
+
+export const postApiV1PresentationF10 = async (postApiV1PresentationF10Body: PostApiV1PresentationF10Body, options?: RequestInit): Promise<postApiV1PresentationF10Response> => {
+
+  return holyricsInstance<postApiV1PresentationF10Response>(getPostApiV1PresentationF10Url(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV1PresentationF10Body,)
+  }
+);}
+
+
+
+
+export const getPostApiV1PresentationF10MutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF10>>, TError,{data: PostApiV1PresentationF10Body}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF10>>, TError,{data: PostApiV1PresentationF10Body}, TContext> => {
+
+const mutationKey = ['postApiV1PresentationF10'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1PresentationF10>>, {data: PostApiV1PresentationF10Body}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiV1PresentationF10(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiV1PresentationF10MutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1PresentationF10>>>
+    export type PostApiV1PresentationF10MutationBody = PostApiV1PresentationF10Body
+    export type PostApiV1PresentationF10MutationError = unknown
+
+    export const usePostApiV1PresentationF10 = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF10>>, TError,{data: PostApiV1PresentationF10Body}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiV1PresentationF10>>,
+        TError,
+        {data: PostApiV1PresentationF10Body},
+        TContext
+      > => {
+      return useMutation(getPostApiV1PresentationF10MutationOptions(options), queryClient);
+    }
+
+/**
+ * Toggle Black Screen (F10) status
+ */
+export type postApiV1PresentationF10ToggleResponse200 = {
+  data: void
+  status: 200
+}
+
+export type postApiV1PresentationF10ToggleResponseSuccess = (postApiV1PresentationF10ToggleResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV1PresentationF10ToggleResponse = (postApiV1PresentationF10ToggleResponseSuccess)
+
+export const getPostApiV1PresentationF10ToggleUrl = () => {
+
+
+
+
+  return `/api/v1/presentation/f10/toggle`
+}
+
+export const postApiV1PresentationF10Toggle = async ( options?: RequestInit): Promise<postApiV1PresentationF10ToggleResponse> => {
+
+  return holyricsInstance<postApiV1PresentationF10ToggleResponse>(getPostApiV1PresentationF10ToggleUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getPostApiV1PresentationF10ToggleMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF10Toggle>>, TError,void, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF10Toggle>>, TError,void, TContext> => {
+
+const mutationKey = ['postApiV1PresentationF10Toggle'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1PresentationF10Toggle>>, void> = () => {
+
+
+          return  postApiV1PresentationF10Toggle(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiV1PresentationF10ToggleMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1PresentationF10Toggle>>>
+
+    export type PostApiV1PresentationF10ToggleMutationError = unknown
+
+    export const usePostApiV1PresentationF10Toggle = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1PresentationF10Toggle>>, TError,void, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiV1PresentationF10Toggle>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPostApiV1PresentationF10ToggleMutationOptions(options), queryClient);
     }
 
 /**
@@ -8424,7 +9117,7 @@ export function useGetApiV1BackgroundsCurrent<TData = Awaited<ReturnType<typeof 
  * Get current theme info
  */
 export type getApiV1BackgroundsCurrentThemeResponse200 = {
-  data: void
+  data: unknown | null
   status: 200
 }
 
@@ -8534,7 +9227,7 @@ export function useGetApiV1BackgroundsCurrentTheme<TData = Awaited<ReturnType<ty
  * Get all themes
  */
 export type getApiV1BackgroundsThemesResponse200 = {
-  data: void
+  data: unknown[]
   status: 200
 }
 
@@ -9631,7 +10324,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
  * Get current schedule
  */
 export type getApiV1SchedulesCurrentResponse200 = {
-  data: void
+  data: GetApiV1SchedulesCurrent200
   status: 200
 }
 
@@ -9741,7 +10434,7 @@ export function useGetApiV1SchedulesCurrent<TData = Awaited<ReturnType<typeof ge
  * Get all schedules
  */
 export type getApiV1SchedulesResponse200 = {
-  data: void
+  data: GetApiV1Schedules200Item[]
   status: 200
 }
 
@@ -9752,17 +10445,24 @@ export type getApiV1SchedulesResponseSuccess = (getApiV1SchedulesResponse200) & 
 
 export type getApiV1SchedulesResponse = (getApiV1SchedulesResponseSuccess)
 
-export const getGetApiV1SchedulesUrl = () => {
+export const getGetApiV1SchedulesUrl = (params?: GetApiV1SchedulesParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/v1/schedules/`
+  return stringifiedParams.length > 0 ? `/api/v1/schedules/?${stringifiedParams}` : `/api/v1/schedules/`
 }
 
-export const getApiV1Schedules = async ( options?: RequestInit): Promise<getApiV1SchedulesResponse> => {
+export const getApiV1Schedules = async (params?: GetApiV1SchedulesParams, options?: RequestInit): Promise<getApiV1SchedulesResponse> => {
 
-  return holyricsInstance<getApiV1SchedulesResponse>(getGetApiV1SchedulesUrl(),
+  return holyricsInstance<getApiV1SchedulesResponse>(getGetApiV1SchedulesUrl(params),
   {
     ...options,
     method: 'GET'
@@ -9775,23 +10475,23 @@ export const getApiV1Schedules = async ( options?: RequestInit): Promise<getApiV
 
 
 
-export const getGetApiV1SchedulesQueryKey = () => {
+export const getGetApiV1SchedulesQueryKey = (params?: GetApiV1SchedulesParams,) => {
     return [
-    `/api/v1/schedules/`
+    `/api/v1/schedules/`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiV1SchedulesQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1Schedules>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+export const getGetApiV1SchedulesQueryOptions = <TData = Awaited<ReturnType<typeof getApiV1Schedules>>, TError = unknown>(params?: GetApiV1SchedulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiV1SchedulesQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetApiV1SchedulesQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1Schedules>>> = ({ signal }) => getApiV1Schedules({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiV1Schedules>>> = ({ signal }) => getApiV1Schedules(params, { signal, ...requestOptions });
 
 
 
@@ -9805,7 +10505,7 @@ export type GetApiV1SchedulesQueryError = unknown
 
 
 export function useGetApiV1Schedules<TData = Awaited<ReturnType<typeof getApiV1Schedules>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>> & Pick<
+ params: undefined |  GetApiV1SchedulesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiV1Schedules>>,
           TError,
@@ -9815,7 +10515,7 @@ export function useGetApiV1Schedules<TData = Awaited<ReturnType<typeof getApiV1S
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiV1Schedules<TData = Awaited<ReturnType<typeof getApiV1Schedules>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>> & Pick<
+ params?: GetApiV1SchedulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiV1Schedules>>,
           TError,
@@ -9825,16 +10525,16 @@ export function useGetApiV1Schedules<TData = Awaited<ReturnType<typeof getApiV1S
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiV1Schedules<TData = Awaited<ReturnType<typeof getApiV1Schedules>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ params?: GetApiV1SchedulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetApiV1Schedules<TData = Awaited<ReturnType<typeof getApiV1Schedules>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
+ params?: GetApiV1SchedulesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiV1Schedules>>, TError, TData>>, request?: SecondParameter<typeof holyricsInstance>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiV1SchedulesQueryOptions(options)
+  const queryOptions = getGetApiV1SchedulesQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -10256,6 +10956,86 @@ export function useGetApiV1SchedulesNearestHistory<TData = Awaited<ReturnType<ty
 
 
 
+
+/**
+ * Show item from schedule
+ */
+export type postApiV1SchedulesShowResponse200 = {
+  data: void
+  status: 200
+}
+
+export type postApiV1SchedulesShowResponseSuccess = (postApiV1SchedulesShowResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV1SchedulesShowResponse = (postApiV1SchedulesShowResponseSuccess)
+
+export const getPostApiV1SchedulesShowUrl = () => {
+
+
+
+
+  return `/api/v1/schedules/show`
+}
+
+export const postApiV1SchedulesShow = async (postApiV1SchedulesShowBody: PostApiV1SchedulesShowBody, options?: RequestInit): Promise<postApiV1SchedulesShowResponse> => {
+
+  return holyricsInstance<postApiV1SchedulesShowResponse>(getPostApiV1SchedulesShowUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV1SchedulesShowBody,)
+  }
+);}
+
+
+
+
+export const getPostApiV1SchedulesShowMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1SchedulesShow>>, TError,{data: PostApiV1SchedulesShowBody}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiV1SchedulesShow>>, TError,{data: PostApiV1SchedulesShowBody}, TContext> => {
+
+const mutationKey = ['postApiV1SchedulesShow'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1SchedulesShow>>, {data: PostApiV1SchedulesShowBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiV1SchedulesShow(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiV1SchedulesShowMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1SchedulesShow>>>
+    export type PostApiV1SchedulesShowMutationBody = PostApiV1SchedulesShowBody
+    export type PostApiV1SchedulesShowMutationError = unknown
+
+    export const usePostApiV1SchedulesShow = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1SchedulesShow>>, TError,{data: PostApiV1SchedulesShowBody}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiV1SchedulesShow>>,
+        TError,
+        {data: PostApiV1SchedulesShowBody},
+        TContext
+      > => {
+      return useMutation(getPostApiV1SchedulesShowMutationOptions(options), queryClient);
+    }
 
 /**
  * Get all song groups
@@ -12342,6 +13122,86 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getPostApiV1BibleSettingsMutationOptions(options), queryClient);
+    }
+
+/**
+ * Set bible theme
+ */
+export type postApiV1BibleThemeResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type postApiV1BibleThemeResponseSuccess = (postApiV1BibleThemeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV1BibleThemeResponse = (postApiV1BibleThemeResponseSuccess)
+
+export const getPostApiV1BibleThemeUrl = () => {
+
+
+
+
+  return `/api/v1/bible/theme`
+}
+
+export const postApiV1BibleTheme = async (postApiV1BibleThemeBody: PostApiV1BibleThemeBody, options?: RequestInit): Promise<postApiV1BibleThemeResponse> => {
+
+  return holyricsInstance<postApiV1BibleThemeResponse>(getPostApiV1BibleThemeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV1BibleThemeBody,)
+  }
+);}
+
+
+
+
+export const getPostApiV1BibleThemeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1BibleTheme>>, TError,{data: PostApiV1BibleThemeBody}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiV1BibleTheme>>, TError,{data: PostApiV1BibleThemeBody}, TContext> => {
+
+const mutationKey = ['postApiV1BibleTheme'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiV1BibleTheme>>, {data: PostApiV1BibleThemeBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiV1BibleTheme(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiV1BibleThemeMutationResult = NonNullable<Awaited<ReturnType<typeof postApiV1BibleTheme>>>
+    export type PostApiV1BibleThemeMutationBody = PostApiV1BibleThemeBody
+    export type PostApiV1BibleThemeMutationError = unknown
+
+    export const usePostApiV1BibleTheme = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiV1BibleTheme>>, TError,{data: PostApiV1BibleThemeBody}, TContext>, request?: SecondParameter<typeof holyricsInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiV1BibleTheme>>,
+        TError,
+        {data: PostApiV1BibleThemeBody},
+        TContext
+      > => {
+      return useMutation(getPostApiV1BibleThemeMutationOptions(options), queryClient);
     }
 
 /**

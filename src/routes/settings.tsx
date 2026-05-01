@@ -5,6 +5,7 @@ import { AuthSettings } from '@/components/settings/auth-settings'
 import { SystemSettings } from '@/components/settings/system-settings'
 import { PreferencesSettings } from '@/components/settings/preferences-settings'
 import { ConnectionStatusCard } from '@/components/settings/connection-status-card'
+import { AppPage, PageHeader, StatusChip } from '@/components/design-system'
 
 export const Route = createFileRoute('/settings')({
   component: SettingsPage,
@@ -12,21 +13,19 @@ export const Route = createFileRoute('/settings')({
 
 function SettingsPage() {
   return (
-    <div className="flex flex-col gap-8 p-4 md:p-8 max-w-5xl mx-auto w-full animate-in fade-in duration-700">
-      <div className="flex flex-col gap-1.5">
-        <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
-          Configurações
-        </h1>
-        <p className="text-muted-foreground font-medium">
-          Gerencie a autenticação e preferências do sistema.
-        </p>
-      </div>
+    <AppPage narrow>
+      <PageHeader
+        eyebrow="Workspace"
+        title="Configurações"
+        description="Gerencie autenticação, comportamento do sistema e preferências do operador sem sair do mesmo padrão visual do restante da aplicação."
+        actions={<StatusChip tone="primary">configuração central</StatusChip>}
+      />
 
       <ConnectionStatusCard />
 
       <Tabs defaultValue="auth" className="flex flex-col gap-8 w-full">
         <div className="overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0">
-          <TabsList className="w-full justify-start h-auto p-1.5 bg-muted/40 backdrop-blur-md border shadow-inner rounded-xl">
+          <TabsList className="h-auto w-full justify-start rounded-2xl border bg-muted/55 p-1.5">
             <TabsTrigger value="auth" className="gap-2.5 py-2.5 px-4 rounded-lg data-[state=active]:shadow-md transition-all">
               <ShieldIcon className="size-4" />
               Autenticação
@@ -52,6 +51,6 @@ function SettingsPage() {
           <PreferencesSettings />
         </TabsContent>
       </Tabs>
-    </div>
+    </AppPage>
   )
 }

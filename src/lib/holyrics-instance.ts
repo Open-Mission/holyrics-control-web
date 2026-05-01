@@ -23,9 +23,12 @@ export const holyricsInstance = async <T>(
 ): Promise<T> => {
   const { method, params, data, headers, ...restConfig } = config;
   const queryParams = params ? `?${new URLSearchParams(params).toString()}` : '';
-  const baseUrl = HOLYRICS_SERVER_URL.endsWith('/') 
-    ? HOLYRICS_SERVER_URL.slice(0, -1) 
-    : HOLYRICS_SERVER_URL;
+  
+  const serverUrl = (typeof localStorage !== 'undefined' && localStorage.getItem('HOLYRICS_SERVER_URL')) || 
+                    import.meta.env.VITE_HOLYRICS_SERVER_URL || 
+                    "http://localhost:3000";
+                    
+  const baseUrl = serverUrl.endsWith('/') ? serverUrl.slice(0, -1) : serverUrl;
   
   const fullUrl = `${baseUrl}${url}${queryParams}`;
 

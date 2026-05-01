@@ -1,4 +1,5 @@
 import {
+  Blocks,
   Home,
   Music,
   PlaySquare,
@@ -6,6 +7,7 @@ import {
   Layers,
   Search,
   PlusCircle,
+  CalendarDays,
 } from "lucide-react"
 
 import {
@@ -15,7 +17,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -33,6 +34,11 @@ const items = [
     title: "Músicas",
     url: "/songs",
     icon: Music,
+  },
+  {
+    title: "Culto",
+    url: "/service",
+    icon: CalendarDays,
   },
   {
     title: "Playlists",
@@ -54,28 +60,30 @@ const items = [
     url: "/settings",
     icon: Settings,
   },
+  {
+    title: "Design",
+    url: "/design",
+    icon: Blocks,
+  },
 ]
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="flex flex-row items-center gap-2 p-4">
-        <div className="flex aspect-square size-8 items-center justify-center rounded-sm overflow-hidden">
-          <img src="/logo.png" alt="Holyrics Logo" className="size-full object-container" />
-        </div>
-        <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
-          <span className="font-semibold uppercase tracking-wider">Holyrics</span>
-          <span className="text-xs text-muted-foreground">Control Server</span>
-        </div>
-      </SidebarHeader>
+    <Sidebar collapsible="icon" variant="floating">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
+            Navegação
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    className="h-10 rounded-xl px-3 text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                  >
                     <Link to={item.url as never}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -87,10 +95,10 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="border-t border-sidebar-border/70 p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="group-data-[collapsible=icon]:size-8">
+            <SidebarMenuButton className="h-10 rounded-xl bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary hover:text-sidebar-primary-foreground group-data-[collapsible=icon]:size-10">
               <PlusCircle />
               <span className="group-data-[collapsible=icon]:hidden">Nova Projeção</span>
             </SidebarMenuButton>

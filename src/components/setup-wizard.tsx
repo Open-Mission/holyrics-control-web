@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { SETUP_STEPS, type SetupStep, useSetupStore } from '@/hooks/use-setup-store'
 import { useSongsStore } from '@/hooks/use-songs-store'
+import { useThemesStore } from '@/hooks/use-themes-store'
+import { usePlaylistsStore } from '@/hooks/use-playlists-store'
 import { fetchGlobalSettings } from '@/lib/global-settings'
 
 interface SetupWizardProps {
@@ -14,6 +16,8 @@ interface SetupWizardProps {
 export function SetupWizard({ onClose }: SetupWizardProps) {
   const setup = useSetupStore()
   const songsStore = useSongsStore()
+  const themesStore = useThemesStore()
+  const playlistsStore = usePlaylistsStore()
   const [syncingStep, setSyncingStep] = useState<SetupStep | null>(null)
 
   const handleSyncSongs = async () => {
@@ -30,9 +34,36 @@ export function SetupWizard({ onClose }: SetupWizardProps) {
     }
   }
 
+  const handleSyncThemes = async () => {
+    setSyncingStep('themes')
+    try {
+      const themes = await themesStore.syncThemes()
+      setup.markStepCompleted('themes')
+      toast.success(`${themes.length} temas sincronizados com sucesso!`)
+    } catch {
+      toast.error('Erro ao sincronizar temas. Verifique a conexão com o Holyrics.')
+    } finally {
+      setSyncingStep(null)
+    }
+  }
+
+  const handleSyncPlaylists = async () => {
+    setSyncingStep('playlists')
+    try {
+      const playlists = await playlistsStore.syncPlaylists()
+      setup.markStepCompleted('playlists')
+      toast.success(`${playlists.length} playlists sincronizadas com sucesso!`)
+    } catch {
+      toast.error('Erro ao sincronizar playlists. Verifique a conexão com o Holyrics.')
+    } finally {
+      setSyncingStep(null)
+    }
+  }
+
   const handleSync = async (step: SetupStep) => {
     if (step === 'songs') return handleSyncSongs()
-    // Future steps will be handled here
+    if (step === 'themes') return handleSyncThemes()
+    if (step === 'playlists') return handleSyncPlaylists()
   }
 
   const handleDismiss = () => {
@@ -45,7 +76,7 @@ export function SetupWizard({ onClose }: SetupWizardProps) {
   }
 
   return (
-    <div className="rounded-2xl border bg-gradient-to-br from-primary/5 via-card to-card shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="rounded-2xl border bg-linear-to-br from-primary/5 via-card to-card shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="relative flex items-start justify-between p-6 pb-4 border-b bg-muted/20">
         <div className="flex items-start gap-4">
@@ -117,6 +148,16 @@ export function SetupWizard({ onClose }: SetupWizardProps) {
                 {step.id === 'songs' && songsStore.hasSongs && isCompleted && (
                   <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
                     {songsStore.songs.length} músicas disponíveis offline
+                  </p>
+                )}
+                {step.id === 'themes' && themesStore.totalCount > 0 && isCompleted && (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
+                    {themesStore.themes.length} temas disponíveis offline
+                  </p>
+                )}
+                {step.id === 'playlists' && playlistsStore.totalCount > 0 && isCompleted && (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
+                    {playlistsStore.playlists.length} playlists disponíveis offline
                   </p>
                 )}
               </div>

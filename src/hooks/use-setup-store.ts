@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 
-export type SetupStep = 'songs' // | 'images' | 'videos' | 'audios' (to be added later)
+export type SetupStep = 'songs' | 'themes' | 'playlists' // | 'images' | 'videos' | 'audios' (to be added later)
 
 export interface SetupStepConfig {
   id: SetupStep
@@ -16,10 +16,18 @@ export const SETUP_STEPS: SetupStepConfig[] = [
     description: 'Sincronizar biblioteca de músicas do Holyrics',
     icon: '🎵',
   },
-  // Future steps:
-  // { id: 'images', label: 'Imagens', description: 'Sincronizar imagens e backgrounds', icon: '🖼️' },
-  // { id: 'videos', label: 'Vídeos', description: 'Sincronizar biblioteca de vídeos', icon: '🎬' },
-  // { id: 'audios', label: 'Áudios', description: 'Sincronizar biblioteca de áudios', icon: '🔊' },
+  {
+    id: 'themes',
+    label: 'Temas',
+    description: 'Sincronizar biblioteca de temas e backgrounds',
+    icon: '🖼️',
+  },
+  {
+    id: 'playlists',
+    label: 'Playlists',
+    description: 'Sincronizar listas de reprodução salvas',
+    icon: '📋',
+  },
 ]
 
 export interface SetupState {

@@ -9,10 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ThemesRouteImport } from './routes/themes'
 import { Route as SongsRouteImport } from './routes/songs'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ServiceRouteImport } from './routes/service'
+import { Route as PlaylistsRouteImport } from './routes/playlists'
+import { Route as DesignRouteImport } from './routes/design'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ThemesRoute = ThemesRouteImport.update({
+  id: '/themes',
+  path: '/themes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SongsRoute = SongsRouteImport.update({
   id: '/songs',
   path: '/songs',
@@ -23,6 +32,21 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServiceRoute = ServiceRouteImport.update({
+  id: '/service',
+  path: '/service',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistsRoute = PlaylistsRouteImport.update({
+  id: '/playlists',
+  path: '/playlists',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignRoute = DesignRouteImport.update({
+  id: '/design',
+  path: '/design',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +55,81 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/design': typeof DesignRoute
+  '/playlists': typeof PlaylistsRoute
+  '/service': typeof ServiceRoute
   '/settings': typeof SettingsRoute
   '/songs': typeof SongsRoute
+  '/themes': typeof ThemesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/design': typeof DesignRoute
+  '/playlists': typeof PlaylistsRoute
+  '/service': typeof ServiceRoute
   '/settings': typeof SettingsRoute
   '/songs': typeof SongsRoute
+  '/themes': typeof ThemesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/design': typeof DesignRoute
+  '/playlists': typeof PlaylistsRoute
+  '/service': typeof ServiceRoute
   '/settings': typeof SettingsRoute
   '/songs': typeof SongsRoute
+  '/themes': typeof ThemesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/songs'
+  fullPaths:
+    | '/'
+    | '/design'
+    | '/playlists'
+    | '/service'
+    | '/settings'
+    | '/songs'
+    | '/themes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/songs'
-  id: '__root__' | '/' | '/settings' | '/songs'
+  to:
+    | '/'
+    | '/design'
+    | '/playlists'
+    | '/service'
+    | '/settings'
+    | '/songs'
+    | '/themes'
+  id:
+    | '__root__'
+    | '/'
+    | '/design'
+    | '/playlists'
+    | '/service'
+    | '/settings'
+    | '/songs'
+    | '/themes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DesignRoute: typeof DesignRoute
+  PlaylistsRoute: typeof PlaylistsRoute
+  ServiceRoute: typeof ServiceRoute
   SettingsRoute: typeof SettingsRoute
   SongsRoute: typeof SongsRoute
+  ThemesRoute: typeof ThemesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/themes': {
+      id: '/themes'
+      path: '/themes'
+      fullPath: '/themes'
+      preLoaderRoute: typeof ThemesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/songs': {
       id: '/songs'
       path: '/songs'
@@ -75,6 +144,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/service': {
+      id: '/service'
+      path: '/service'
+      fullPath: '/service'
+      preLoaderRoute: typeof ServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlists': {
+      id: '/playlists'
+      path: '/playlists'
+      fullPath: '/playlists'
+      preLoaderRoute: typeof PlaylistsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design': {
+      id: '/design'
+      path: '/design'
+      fullPath: '/design'
+      preLoaderRoute: typeof DesignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,8 +177,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DesignRoute: DesignRoute,
+  PlaylistsRoute: PlaylistsRoute,
+  ServiceRoute: ServiceRoute,
   SettingsRoute: SettingsRoute,
   SongsRoute: SongsRoute,
+  ThemesRoute: ThemesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -7,112 +7,8 @@
  * state updates whenever songs are synced or cleared from any component.
  */
 import { useSyncExternalStore, useCallback, useEffect } from 'react'
-import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import { getDb, type Song, type SongDetailRecord } from '@/lib/db'
 import { getApiV1Songs } from '@/lib/holyrics'
-
-// ─── Schema ───────────────────────────────────────────────────────────────────
-
-export interface Song {
-  id: string
-  title: string
-  artist?: string
-  author?: string
-  copyright?: string
-  note?: string
-  group?: string
-  order?: string
-  [key: string]: unknown
-}
-
-export interface LyricSlide {
-  text: string
-  styled_text?: string
-  slide_description?: string
-  background_id?: string | null
-  translations?: Record<string, string> | null
-}
-
-/**
- * Full song detail record stored per-song in IDB.
- * Includes all API fields + local tracking metadata.
- */
-export interface SongDetailRecord extends Song {
-  language?: string
-  slides?: LyricSlide[]
-  formatting_type?: 'basic' | 'styled' | 'advanced'
-  key?: string
-  bpm?: number
-  time_sig?: string
-  archived?: boolean
-  extras?: Record<string, unknown>
-  // ─── IDB tracking fields ─────────────────────────────────
-  /** ISO timestamp of when we last fetched this from the API */
-  _fetchedAt?: string
-  /** True when local edits haven't been pushed to Holyrics yet */
-  _dirty?: boolean
-  /** Which top-level fields were changed locally */
-  _dirtyFields?: string[]
-}
-
-interface HolyricsDB extends DBSchema {
-  songs: {
-    key: string
-    value: Song
-    indexes: { by_title: string; by_group: string }
-  }
-  meta: {
-    key: string
-    value: { key: string; value: string }
-  }
-  song_details: {
-    key: string
-    value: SongDetailRecord
-  }
-}
-
-// ─── DB singleton ─────────────────────────────────────────────────────────────
-
-const DB_NAME = 'holyrics'
-const DB_VERSION = 2
-let _dbPromise: Promise<IDBPDatabase<HolyricsDB>> | null = null
-
-function getDb(): Promise<IDBPDatabase<HolyricsDB>> {
-  if (!_dbPromise) {
-    _dbPromise = openDB<HolyricsDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        // Always create stores if they don't exist yet (idempotent)
-        if (!db.objectStoreNames.contains('songs')) {
-          const s = db.createObjectStore('songs', { keyPath: 'id' })
-          s.createIndex('by_title', 'title')
-          s.createIndex('by_group', 'group')
-        }
-        if (!db.objectStoreNames.contains('meta')) {
-          db.createObjectStore('meta', { keyPath: 'key' })
-        }
-        if (!db.objectStoreNames.contains('song_details')) {
-          db.createObjectStore('song_details', { keyPath: 'id' })
-        }
-      },
-      blocked() {
-        console.warn('[SongsStore] IDB upgrade blocked by another tab — close other tabs and reload.')
-      },
-      blocking() {
-        // This version is blocking a newer version in another tab
-        _db?.close()
-        _dbPromise = null
-      },
-    }).catch((err) => {
-      // Reset so next call retries
-      _dbPromise = null
-      throw err
-    })
-  }
-  return _dbPromise
-}
-
-// Keep a reference so we can close it if blocking
-let _db: IDBPDatabase<HolyricsDB> | null = null
-getDb().then((db) => { _db = db }).catch(() => {})
 
 // ─── song_details IDB helpers (exported for use-song-detail) ─────────────────
 
@@ -196,7 +92,6 @@ let _loadStartedAt = 0
 
 export async function forceLoad() {
   _initialLoadDone = false
-  _dbPromise = null
   _state = { ..._state, isLoading: true }
   await initialLoad()
 }
@@ -303,3 +198,5 @@ export function useSongsStore() {
     forceLoad: useCallback(forceLoad, []),
   }
 }
+export { Song }
+

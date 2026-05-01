@@ -13,6 +13,9 @@ import {
   postApiV1SongsShow,
   postApiV1PresentationGoToIndex,
   postApiV1PresentationClose,
+  postApiV1PresentationF8Toggle,
+  postApiV1PresentationF9Toggle,
+  postApiV1PresentationF10Toggle,
 } from '@/lib/holyrics'
 import {
   fetchGlobalSettings,
@@ -40,6 +43,12 @@ export interface PresentationState {
   selectedSong: Song | null
   /** Controla se o SongDetailPanel está visível */
   panelOpen: boolean
+  /** Estado otimista do Wallpaper (F8) */
+  f8: boolean
+  /** Estado otimista do Sem Letra (F9) */
+  f9: boolean
+  /** Estado otimista do Black Screen (F10) */
+  f10: boolean
 }
 
 // ─── Singleton state ──────────────────────────────────────────────────────────
@@ -53,11 +62,14 @@ let _state: PresentationState = {
   presentationKind: null,
   selectedSong: null,
   panelOpen: false,
+  f8: false,
+  f9: false,
+  f10: false,
 }
 
 const _listeners = new Set<() => void>()
 
-function setState(patch: Partial<PresentationState>) {
+export function setState(patch: Partial<PresentationState>) {
   _state = { ..._state, ...patch }
   _listeners.forEach((l) => l())
 }
@@ -102,7 +114,7 @@ export async function startPresentation(
 ): Promise<void> {
   const settings = await fetchGlobalSettings()
   const useInitialSlide = options?.respectInitialSlide !== false && shouldUseInitialSlide(settings)
-  const apiInitialIndex = useInitialSlide ? 0 : initialIndex
+  const apiInitialIndex = useInitialSlide ? 0 : getMusicPresentationApiIndex(initialIndex, settings)
   const visualActiveIndex = useInitialSlide && initialIndex === 0 ? null : initialIndex
 
   setState({
@@ -178,8 +190,50 @@ export function clearPresentation() {
     activeIndex: null,
     presentationKind: null,
     panelOpen: false,
-    selectedSong: null
+    selectedSong: null,
   })
+}
+
+/**
+ * Alterna Wallpaper (F8)
+ */
+export async function toggleWallpaper() {
+  const prev = _state.f8
+  setState({ f8: !prev })
+  try {
+    await postApiV1PresentationF8Toggle()
+  } catch (err) {
+    console.error('[Presentation] toggleWallpaper failed:', err)
+    setState({ f8: prev })
+  }
+}
+
+/**
+ * Alterna Sem Letra (F9)
+ */
+export async function toggleNoLyrics() {
+  const prev = _state.f9
+  setState({ f9: !prev })
+  try {
+    await postApiV1PresentationF9Toggle()
+  } catch (err) {
+    console.error('[Presentation] toggleNoLyrics failed:', err)
+    setState({ f9: prev })
+  }
+}
+
+/**
+ * Alterna Black Screen (F10)
+ */
+export async function toggleBlackScreen() {
+  const prev = _state.f10
+  setState({ f10: !prev })
+  try {
+    await postApiV1PresentationF10Toggle()
+  } catch (err) {
+    console.error('[Presentation] toggleBlackScreen failed:', err)
+    setState({ f10: prev })
+  }
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -195,5 +249,8 @@ export function usePresentationStore() {
     goToSlide: useCallback(goToSlide, []),
     closePresentation: useCallback(closePresentation, []),
     clearPresentation: useCallback(clearPresentation, []),
+    toggleWallpaper: useCallback(toggleWallpaper, []),
+    toggleNoLyrics: useCallback(toggleNoLyrics, []),
+    toggleBlackScreen: useCallback(toggleBlackScreen, []),
   }
 }

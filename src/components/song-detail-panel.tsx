@@ -5,7 +5,7 @@
  * - Slides interativos com Optimistic UI (fundo verde no slide ativo)
  * - Integração com usePresentationStore para estado global de apresentação
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   PencilIcon,
   XIcon,
@@ -26,6 +26,10 @@ import {
   CloudOffIcon,
   UserIcon,
   PlayIcon,
+  ImageIcon,
+  TypeIcon,
+  MonitorOffIcon,
+  XCircleIcon,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -35,6 +39,7 @@ import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useSongDetail, type LyricSlide } from '@/hooks/use-song-detail'
+
 import {
   usePresentationStore,
   startPresentation,
@@ -65,7 +70,7 @@ export function SongDetailPanel({ song, open, onClose }: SongDetailPanelProps) {
         onOpenChange={(v) => !v && onClose()}
         direction="bottom"
       >
-        <DrawerContent className="max-h-[92dvh] flex flex-col">
+        <DrawerContent className="h-dvh flex flex-col rounded-none">
           <DrawerTitle className="sr-only">{song?.title ?? 'Detalhes da Música'}</DrawerTitle>
           {content}
         </DrawerContent>
@@ -78,7 +83,7 @@ export function SongDetailPanel({ song, open, onClose }: SongDetailPanelProps) {
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="w-full sm:!max-w-[50vw] sm:min-w-96 p-0 flex flex-col gap-0"
+        className="w-full sm:max-w-[60vw]! sm:min-w-96 p-0 flex flex-col gap-0"
       >
         <SheetTitle className="sr-only">{song?.title ?? 'Detalhes da Música'}</SheetTitle>
         {content}
@@ -100,8 +105,37 @@ function SongDetailContent({ song, onClose }: { song: Song; onClose: () => void 
     refetchFromApi,
   } = useSongDetail(song.id)
 
-  const { song: presentingSong, activeIndex, isStarting, isNavigating } =
-    usePresentationStore()
+  const {
+    song: presentingSong,
+    activeIndex,
+    isStarting,
+    isNavigating,
+    toggleWallpaper,
+    toggleNoLyrics,
+    toggleBlackScreen,
+    closePresentation,
+    isPresenting,
+    f8,
+    f9,
+    f10,
+  } = usePresentationStore()
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F8') {
+        e.preventDefault()
+        toggleWallpaper()
+      } else if (e.key === 'F9') {
+        e.preventDefault()
+        toggleNoLyrics()
+      } else if (e.key === 'F10') {
+        e.preventDefault()
+        toggleBlackScreen()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [toggleWallpaper, toggleNoLyrics, toggleBlackScreen])
 
   const [activeTab, setActiveTab] = useState('info')
 
@@ -160,7 +194,7 @@ function SongDetailContent({ song, onClose }: { song: Song; onClose: () => void 
 
       {/* ── Toolbar ──────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 px-4 py-3 border-b bg-background/80 backdrop-blur-sm shrink-0">
-        <div className="flex-shrink-0 size-9 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center">
+        <div className="shrink-0 size-9 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center">
           <Music2Icon className="size-4 text-primary" />
         </div>
 
@@ -192,7 +226,7 @@ function SongDetailContent({ song, onClose }: { song: Song; onClose: () => void 
             className={cn(
               'gap-1.5 h-8 text-xs',
               isPresentingThisSong &&
-                'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600'
+              'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600'
             )}
             onClick={handlePresent}
             disabled={isStarting}
@@ -256,6 +290,85 @@ function SongDetailContent({ song, onClose }: { song: Song; onClose: () => void 
           </p>
         </div>
       )}
+
+      {/* ── Presentation Toolbar ────────────────────────────────────────── */}
+      <div className="flex items-center gap-1.5 px-4 py-2 bg-muted/30 border-b overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 pr-3 border-r">
+          <Button
+            size="sm"
+            variant={f8 ? 'default' : 'ghost'}
+            className={cn(
+              'h-8 px-2 gap-1.5 text-xs font-semibold transition-colors',
+              !f8 && 'hover:bg-primary/10 hover:text-primary'
+            )}
+            onClick={toggleWallpaper}
+            title="Mostrar Wallpaper (F8)"
+          >
+            <ImageIcon className="size-3.5" />
+            <span className="hidden sm:inline">Wallpaper</span>
+            <kbd className={cn(
+              "hidden md:inline-flex h-4 items-center gap-1 rounded border px-1 font-mono text-[10px] font-medium opacity-100",
+              f8 ? "bg-primary-foreground/20 border-primary-foreground/20 text-primary-foreground" : "bg-muted"
+            )}>
+              F8
+            </kbd>
+          </Button>
+
+          <Button
+            size="sm"
+            variant={f9 ? 'default' : 'ghost'}
+            className={cn(
+              'h-8 px-2 gap-1.5 text-xs font-semibold transition-colors',
+              !f9 && 'hover:bg-primary/10 hover:text-primary'
+            )}
+            onClick={toggleNoLyrics}
+            title="Sem letra (F9)"
+          >
+            <TypeIcon className="size-3.5" />
+            <span className="hidden sm:inline">Sem Letra</span>
+            <kbd className={cn(
+              "hidden md:inline-flex h-4 items-center gap-1 rounded border px-1 font-mono text-[10px] font-medium opacity-100",
+              f9 ? "bg-primary-foreground/20 border-primary-foreground/20 text-primary-foreground" : "bg-muted"
+            )}>
+              F9
+            </kbd>
+          </Button>
+
+          <Button
+            size="sm"
+            variant={f10 ? 'default' : 'ghost'}
+            className={cn(
+              'h-8 px-2 gap-1.5 text-xs font-semibold transition-colors',
+              !f10 && 'hover:bg-primary/10 hover:text-primary'
+            )}
+            onClick={toggleBlackScreen}
+            title="Blank Screen (F10)"
+          >
+            <MonitorOffIcon className="size-3.5" />
+            <span className="hidden sm:inline">Black</span>
+            <kbd className={cn(
+              "hidden md:inline-flex h-4 items-center gap-1 rounded border px-1 font-mono text-[10px] font-medium opacity-100",
+              f10 ? "bg-primary-foreground/20 border-primary-foreground/20 text-primary-foreground" : "bg-muted"
+            )}>
+              F10
+            </kbd>
+          </Button>
+        </div>
+
+        <div className="flex-1" />
+
+        {isPresenting && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-2 gap-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
+            onClick={closePresentation}
+          >
+            <XCircleIcon className="size-3.5" />
+            <span>Encerrar</span>
+          </Button>
+        )}
+      </div>
 
       {/* ── Tabs ─────────────────────────────────────────────────────────── */}
       <Tabs
@@ -495,7 +608,7 @@ function InfoRow({
             </span>
           )}
         </div>
-        <p className="text-sm font-medium leading-snug mt-0.5 break-words">{value}</p>
+        <p className="text-sm font-medium leading-snug mt-0.5 wrap-break-word">{value}</p>
       </div>
     </div>
   )
@@ -549,27 +662,31 @@ function SlideCard({
               <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
                 ATIVO
               </span>
+              {slide.slide_description && (
+                <>
+                  <ChevronRightIcon className="size-3 text-emerald-500/50" />
+                  <span className="text-[10px] uppercase tracking-wider font-semibold truncate text-emerald-600 dark:text-emerald-400">
+                    {slide.slide_description}
+                  </span>
+                </>
+              )}
             </>
           ) : (
-            <span className="text-[10px] font-black text-muted-foreground tabular-nums">
-              #{String(index + 1).padStart(2, '0')}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-black text-muted-foreground/50 tabular-nums">
+                #{String(index + 1).padStart(2, '0')}
+              </span>
+              {slide.slide_description && (
+                <>
+                  <ChevronRightIcon className="size-3 text-muted-foreground/30" />
+                  <span className="text-[10px] uppercase tracking-wider font-semibold truncate text-muted-foreground">
+                    {slide.slide_description}
+                  </span>
+                </>
+              )}
+            </div>
           )}
         </div>
-
-        {slide.slide_description && (
-          <>
-            <ChevronRightIcon className="size-3 text-muted-foreground/40" />
-            <span
-              className={cn(
-                'text-[10px] uppercase tracking-wider font-semibold truncate',
-                isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
-              )}
-            >
-              {slide.slide_description}
-            </span>
-          </>
-        )}
 
         <div className="flex-1" />
 
