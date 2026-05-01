@@ -1,139 +1,150 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState, useMemo, useCallback } from 'react'
+/* eslint-disable react-refresh/only-export-components */
+import { createFileRoute } from "@tanstack/react-router";
+import { useState, useMemo, useCallback } from "react";
 import {
   RefreshCwIcon,
   SearchIcon,
   AlertCircleIcon,
   DatabaseIcon,
-  ClockIcon,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
-import { useSongsStore, type Song } from '@/hooks/use-songs-store'
-import { openPanelForSong } from '@/hooks/use-presentation-store'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { AppPage, EmptyStateSection, PageHeader, SearchToolbar, SectionBlock, StatusChip, ToolbarRow } from '@/components/design-system'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useSongsStore, type Song } from "@/hooks/use-songs-store";
+import { openPanelForSong } from "@/hooks/use-presentation-store";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  AppPage,
+  EmptyStateSection,
+  PageHeader,
+  SearchToolbar,
+  SectionBlock,
+  StatusChip,
+} from "@/components/design-system";
 
 // Extracted components
-import { SongsList } from '@/components/songs/songs-list'
-import { SongsPagination, type PageSize } from '@/components/songs/songs-pagination'
+import { SongsList } from "@/components/songs/songs-list";
+import {
+  SongsPagination,
+  type PageSize,
+} from "@/components/songs/songs-pagination";
 
-export const Route = createFileRoute('/songs')({
+export const Route = createFileRoute("/songs")({
   component: SongsPage,
-})
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatSyncDate(isoDate: string | null): string {
-  if (!isoDate) return 'Nunca sincronizado'
-  const date = new Date(isoDate)
-  const now = new Date()
-  const diffMin = Math.floor((now.getTime() - date.getTime()) / 60000)
-  if (diffMin < 1) return 'Agora mesmo'
-  if (diffMin < 60) return `Há ${diffMin} min`
-  const diffH = Math.floor(diffMin / 60)
-  if (diffH < 24) return `Há ${diffH}h`
-  return `Há ${Math.floor(diffH / 24)}d`
-}
+});
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-function SongsPage() {
-  const { songs, totalCount, lastSyncedAt, isSyncing, isLoading, syncError, hasSongs, syncSongs } =
-    useSongsStore()
+function formatSyncDate(isoDate: string | null): string {
+  if (!isoDate) return "Nunca sincronizado";
+  const date = new Date(isoDate);
+  const now = new Date();
+  const diffMin = Math.floor((now.getTime() - date.getTime()) / 60000);
+  if (diffMin < 1) return "Agora mesmo";
+  if (diffMin < 60) return `Há ${diffMin} min`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `Há ${diffH}h`;
+  return `Há ${Math.floor(diffH / 24)}d`;
+}
 
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState<PageSize>(50)
+function SongsPage() {
+  const {
+    songs,
+    totalCount,
+    lastSyncedAt,
+    isSyncing,
+    isLoading,
+    syncError,
+    hasSongs,
+    syncSongs,
+  } = useSongsStore();
+
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<PageSize>(50);
 
   const handleSongClick = useCallback((song: Song) => {
-    openPanelForSong(song)
-  }, [])
+    openPanelForSong(song);
+  }, []);
 
   // Reset to page 1 whenever search or pageSize changes
   const handleSearchChange = (val: string) => {
-    setSearch(val)
-    setPage(1)
-  }
+    setSearch(val);
+    setPage(1);
+  };
 
   const handlePageSizeChange = (val: PageSize) => {
-    setPageSize(val)
-    setPage(1)
-  }
+    setPageSize(val);
+    setPage(1);
+  };
 
   // Client-side filter
   const filtered = useMemo(() => {
-    if (!search.trim()) return songs
-    const q = search.toLowerCase()
+    if (!search.trim()) return songs;
+    const q = search.toLowerCase();
     return songs.filter(
       (s) =>
         s.title?.toLowerCase().includes(q) ||
         s.artist?.toLowerCase().includes(q) ||
         s.author?.toLowerCase().includes(q) ||
-        s.group?.toLowerCase().includes(q)
-    )
-  }, [songs, search])
+        s.group?.toLowerCase().includes(q),
+    );
+  }, [songs, search]);
 
   // Pagination
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
-  const safePage = Math.min(page, totalPages)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, totalPages);
   const paginated = useMemo(
     () => filtered.slice((safePage - 1) * pageSize, safePage * pageSize),
-    [filtered, safePage, pageSize]
-  )
+    [filtered, safePage, pageSize],
+  );
 
   const handleRefresh = async () => {
     try {
-      const result = await syncSongs()
-      toast.success(`${result.length} músicas atualizadas!`)
+      const result = await syncSongs();
+      toast.success(`${result.length} músicas atualizadas!`);
     } catch {
-      toast.error('Erro ao buscar músicas do servidor.')
+      toast.error("Erro ao buscar músicas do servidor.");
     }
-  }
+  };
 
   const clearSearch = useCallback(() => {
-    setSearch('')
-    setPage(1)
-  }, [])
+    setSearch("");
+    setPage(1);
+  }, []);
 
   return (
-    <AppPage narrow>
+    <AppPage>
       <PageHeader
         eyebrow="Biblioteca"
         title="Músicas"
         description="Biblioteca completa sincronizada localmente para busca rápida, navegação por contexto e abertura imediata do painel de apresentação."
+        meta={
+          <>
+            <StatusChip tone="neutral">
+              {isLoading ? "carregando" : `${totalCount} músicas`}
+            </StatusChip>
+            <StatusChip tone="primary">
+              {isSyncing ? "sincronizando" : formatSyncDate(lastSyncedAt)}
+            </StatusChip>
+          </>
+        }
         actions={
           <>
-            <StatusChip tone="neutral">{isLoading ? 'carregando' : `${totalCount} músicas`}</StatusChip>
-            <StatusChip tone="primary">{formatSyncDate(lastSyncedAt)}</StatusChip>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isSyncing || isLoading}
+              className="gap-2 shrink-0"
+              id="btn-refresh-songs"
+            >
+              <RefreshCwIcon className={isSyncing ? "animate-spin" : ""} />
+              {isSyncing ? "Atualizando…" : "Atualizar do Servidor"}
+            </Button>
           </>
         }
       />
-
-      <ToolbarRow>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusChip tone="neutral">
-            <DatabaseIcon data-icon="inline-start" />
-            cache local
-          </StatusChip>
-          <StatusChip tone={isSyncing ? 'primary' : 'success'}>
-            <ClockIcon data-icon="inline-start" />
-            {isSyncing ? 'sincronizando' : 'pronto'}
-          </StatusChip>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={isSyncing || isLoading}
-          className="gap-2 shrink-0"
-          id="btn-refresh-songs"
-        >
-          <RefreshCwIcon className={isSyncing ? 'animate-spin' : ''} />
-          {isSyncing ? 'Atualizando…' : 'Atualizar do Servidor'}
-        </Button>
-      </ToolbarRow>
 
       <SearchToolbar
         value={search}
@@ -143,10 +154,12 @@ function SongsPage() {
         resultLabel={
           search && !isLoading ? (
             <Badge variant="secondary" className="rounded-full">
-              {filtered.length} resultado{filtered.length !== 1 ? 's' : ''}
+              {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
             </Badge>
           ) : (
-            <span className="text-sm text-muted-foreground">Busca instantânea sobre o banco local.</span>
+            <span className="text-sm text-muted-foreground">
+              Busca instantânea sobre o banco local.
+            </span>
           )
         }
       />
@@ -184,7 +197,11 @@ function SongsPage() {
         <EmptyStateSection
           icon={SearchIcon}
           title="Nenhuma música encontrada"
-          description={<>Nenhum resultado para <strong>{search}</strong>.</>}
+          description={
+            <>
+              Nenhum resultado para <strong>{search}</strong>.
+            </>
+          }
           action={
             <Button variant="outline" onClick={clearSearch} size="sm">
               Limpar busca
@@ -194,8 +211,15 @@ function SongsPage() {
       )}
 
       {!isLoading && hasSongs && filtered.length > 0 && (
-        <SectionBlock title="Resultados" description="Toque em uma música para abrir o painel lateral com detalhes e ações de apresentação.">
-          <SongsList songs={paginated} isSyncing={isSyncing} onSongClick={handleSongClick} />
+        <SectionBlock
+          title="Resultados"
+          description="Toque em uma música para abrir o painel lateral com detalhes e ações de apresentação."
+        >
+          <SongsList
+            songs={paginated}
+            isSyncing={isSyncing}
+            onSongClick={handleSongClick}
+          />
           <SongsPagination
             page={safePage}
             totalPages={totalPages}
@@ -207,5 +231,5 @@ function SongsPage() {
         </SectionBlock>
       )}
     </AppPage>
-  )
+  );
 }

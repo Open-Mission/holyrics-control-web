@@ -9,13 +9,12 @@
  */
 import { useState, useEffect, useCallback } from 'react'
 import { getApiV1SongsId } from '@/lib/holyrics'
+import type { LyricSlide, SongDetailRecord } from '@/lib/db'
 import {
   dbGetSongDetail,
   dbPutSongDetail,
   dbUpdateSongDetailFields,
   dbMarkSongDetailClean,
-  type SongDetailRecord,
-  type LyricSlide,
 } from './use-songs-store'
 
 export type { SongDetailRecord, LyricSlide }

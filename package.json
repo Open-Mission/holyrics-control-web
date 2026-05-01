@@ -40,6 +40,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@babel/core": "^7.29.0",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
@@ -54,9 +55,11 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "msw": "^2.14.2",
     "orval": "^8.9.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "zod": "^4.3.6"
   }
 }

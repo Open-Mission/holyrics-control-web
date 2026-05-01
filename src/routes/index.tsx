@@ -15,7 +15,7 @@ function DashboardPage() {
         eyebrow="Overview"
         title="Visão rápida do culto"
         description="Acompanhe a projeção ao vivo e mantenha a fila de mídias acessível sem excesso de informação."
-        actions={
+        meta={
           <>
             <StatusChip tone="success">servidor conectado</StatusChip>
             <StatusChip tone="primary">preview ao vivo</StatusChip>
@@ -30,4 +30,3 @@ function DashboardPage() {
     </AppPage>
   )
 }
-

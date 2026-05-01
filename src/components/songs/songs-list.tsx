@@ -1,5 +1,6 @@
 import { SongRow } from './song-row'
 import type { Song } from '@/hooks/use-songs-store'
+import { ItemGroup } from '@/components/ui/item'
 
 interface SongsListProps {
   songs: Song[]
@@ -13,10 +14,16 @@ export function SongsList({
   onSongClick,
 }: SongsListProps) {
   return (
-    <div className={`flex flex-col gap-2 transition-opacity duration-300 ${isSyncing ? 'opacity-50' : ''}`}>
-        {songs.map((song, idx) => (
-          <SongRow key={song.id ?? idx} song={song} onClick={() => onSongClick(song)} />
-        ))}
-    </div>
+    <ItemGroup
+      className={`gap-2 transition-opacity duration-300 ${isSyncing ? 'opacity-50' : ''}`}
+    >
+      {songs.map((song, idx) => (
+        <SongRow
+          key={song.id ?? idx}
+          song={song}
+          onClick={() => onSongClick(song)}
+        />
+      ))}
+    </ItemGroup>
   )
 }

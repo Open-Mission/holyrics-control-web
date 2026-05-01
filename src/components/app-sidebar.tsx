@@ -8,7 +8,7 @@ import {
   Search,
   PlusCircle,
   CalendarDays,
-} from "lucide-react"
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -21,8 +21,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Link } from "@tanstack/react-router"
+} from "@/components/ui/sidebar";
+import { Link } from "@tanstack/react-router";
 
 const items = [
   {
@@ -65,11 +65,11 @@ const items = [
     url: "/design",
     icon: Blocks,
   },
-]
+];
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" variant="floating">
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="px-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
@@ -100,12 +100,14 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton className="h-10 rounded-xl bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary hover:text-sidebar-primary-foreground group-data-[collapsible=icon]:size-10">
               <PlusCircle />
-              <span className="group-data-[collapsible=icon]:hidden">Nova Projeção</span>
+              <span className="group-data-[collapsible=icon]:hidden">
+                Nova Projeção
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

@@ -7,7 +7,7 @@
  * state updates whenever songs are synced or cleared from any component.
  */
 import { useSyncExternalStore, useCallback, useEffect } from 'react'
-import { getDb, type Song, type SongDetailRecord } from '@/lib/db'
+import { getDb, type LyricSlide, type Song, type SongDetailRecord } from '@/lib/db'
 import { getApiV1Songs } from '@/lib/holyrics'
 
 // ─── song_details IDB helpers (exported for use-song-detail) ─────────────────
@@ -198,5 +198,4 @@ export function useSongsStore() {
     forceLoad: useCallback(forceLoad, []),
   }
 }
-export { Song }
-
+export type { LyricSlide, Song, SongDetailRecord }

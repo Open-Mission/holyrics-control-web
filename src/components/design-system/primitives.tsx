@@ -1,14 +1,15 @@
-import { SearchIcon, XIcon, type LucideIcon } from "lucide-react"
+import { SearchIcon, XIcon, type LucideIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from "@/components/ui/input-group"
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import {
   Empty,
   EmptyContent,
@@ -16,7 +17,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty"
+} from "@/components/ui/empty";
 
 export function AppPage({
   className,
@@ -28,39 +29,48 @@ export function AppPage({
       className={cn("app-page", narrow && "app-page--narrow", className)}
       {...props}
     />
-  )
+  );
 }
 
 export function PageHeader({
   eyebrow,
   title,
   description,
+  meta,
   actions,
   className,
 }: {
-  eyebrow?: string
-  title: string
-  description?: React.ReactNode
-  actions?: React.ReactNode
-  className?: string
+  eyebrow?: string;
+  title: string;
+  description?: React.ReactNode;
+  meta?: React.ReactNode;
+  actions?: React.ReactNode;
+  className?: string;
 }) {
   return (
     <header
       className={cn(
-        "flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between",
-        className
+        "flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between",
+        className,
       )}
     >
-      <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
         {eyebrow ? <span className="app-kicker">{eyebrow}</span> : null}
         <div className="flex flex-col gap-2">
           <h1 className="app-title">{title}</h1>
           {description ? <p className="app-copy">{description}</p> : null}
         </div>
+        {meta ? (
+          <div className="flex flex-wrap items-center gap-2">{meta}</div>
+        ) : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">
+          {actions}
+        </div>
+      ) : null}
     </header>
-  )
+  );
 }
 
 export function SectionBlock({
@@ -70,35 +80,46 @@ export function SectionBlock({
   children,
   className,
 }: {
-  title?: string
-  description?: React.ReactNode
-  action?: React.ReactNode
-  children: React.ReactNode
-  className?: string
+  title?: string;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <section className={cn("flex flex-col gap-4", className)}>
-      {(title || description || action) ? (
+      {title || description || action ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-1">
-            {title ? <h2 className="text-lg font-semibold tracking-tight">{title}</h2> : null}
+            {title ? (
+              <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+            ) : null}
             {description ? (
-              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
+              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                {description}
+              </p>
             ) : null}
           </div>
-          {action ? <div className="flex items-center gap-2">{action}</div> : null}
+          {action ? (
+            <div className="flex items-center gap-2">{action}</div>
+          ) : null}
         </div>
       ) : null}
       {children}
     </section>
-  )
+  );
 }
 
 export function SurfaceCard({
   className,
   ...props
 }: React.ComponentProps<typeof Card>) {
-  return <Card className={cn("app-surface rounded-2xl border", className)} {...props} />
+  return (
+    <Card
+      className={cn("app-surface rounded-2xl border", className)}
+      {...props}
+    />
+  );
 }
 
 export function MetricCard({
@@ -108,11 +129,11 @@ export function MetricCard({
   icon: Icon,
   tone = "neutral",
 }: {
-  label: string
-  value: React.ReactNode
-  description?: React.ReactNode
-  icon: LucideIcon
-  tone?: "neutral" | "primary"
+  label: string;
+  value: React.ReactNode;
+  description?: React.ReactNode;
+  icon: LucideIcon;
+  tone?: "neutral" | "primary";
 }) {
   return (
     <SurfaceCard size="sm" className="gap-4">
@@ -124,7 +145,7 @@ export function MetricCard({
               "flex size-9 items-center justify-center rounded-xl border",
               tone === "primary"
                 ? "border-primary/15 bg-primary/10 text-primary"
-                : "border-border/60 bg-muted/70 text-muted-foreground"
+                : "border-border/60 bg-muted/70 text-muted-foreground",
             )}
           >
             <Icon />
@@ -132,11 +153,15 @@ export function MetricCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-1">
-        <div className="text-2xl font-semibold tracking-tight md:text-3xl">{value}</div>
-        {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+        <div className="text-2xl font-semibold tracking-tight md:text-3xl">
+          {value}
+        </div>
+        {description ? (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        ) : null}
       </CardContent>
     </SurfaceCard>
-  )
+  );
 }
 
 export function StatusChip({
@@ -144,7 +169,7 @@ export function StatusChip({
   tone = "neutral",
   className,
 }: React.ComponentProps<"span"> & {
-  tone?: "neutral" | "primary" | "success"
+  tone?: "neutral" | "primary" | "success";
 }) {
   return (
     <Badge
@@ -152,14 +177,15 @@ export function StatusChip({
       className={cn(
         "rounded-full border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em]",
         tone === "primary" && "border-primary/20 bg-primary/10 text-primary",
-        tone === "success" && "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        tone === "success" &&
+          "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
         tone === "neutral" && "bg-background/70 text-muted-foreground",
-        className
+        className,
       )}
     >
       {children}
     </Badge>
-  )
+  );
 }
 
 export function ToolbarRow({
@@ -169,13 +195,13 @@ export function ToolbarRow({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-2xl border app-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
-        className
+        "flex flex-col gap-4 rounded-2xl border app-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        className,
       )}
     >
       {children}
     </div>
-  )
+  );
 }
 
 export function SearchToolbar({
@@ -187,17 +213,17 @@ export function SearchToolbar({
   actions,
   className,
 }: {
-  value: string
-  onValueChange: (value: string) => void
-  onClear?: () => void
-  placeholder: string
-  resultLabel?: React.ReactNode
-  actions?: React.ReactNode
-  className?: string
+  value: string;
+  onValueChange: (value: string) => void;
+  onClear?: () => void;
+  placeholder: string;
+  resultLabel?: React.ReactNode;
+  actions?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-3 lg:flex-row lg:items-center", className)}>
-      <InputGroup className="app-surface h-11 rounded-2xl border">
+    <div className={cn("flex flex-col lg:gap-0 lg:items-start", className)}>
+      <InputGroup className="app-surface h-10 border">
         <InputGroupAddon align="inline-start">
           <InputGroupText>
             <SearchIcon />
@@ -221,14 +247,16 @@ export function SearchToolbar({
           </InputGroupAddon>
         ) : null}
       </InputGroup>
-      {(resultLabel || actions) ? (
+      {resultLabel || actions ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:flex-1">
-          <div className="flex min-h-9 items-center">{resultLabel}</div>
-          {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+          <div className="flex items-center">{resultLabel}</div>
+          {actions ? (
+            <div className="flex flex-wrap items-center gap-2">{actions}</div>
+          ) : null}
         </div>
       ) : null}
     </div>
-  )
+  );
 }
 
 export function EmptyStateSection({
@@ -238,16 +266,19 @@ export function EmptyStateSection({
   action,
   className,
 }: {
-  icon: LucideIcon
-  title: string
-  description: React.ReactNode
-  action?: React.ReactNode
-  className?: string
+  icon: LucideIcon;
+  title: string;
+  description: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Empty className={cn("app-surface rounded-2xl border py-16", className)}>
       <EmptyHeader>
-        <EmptyMedia variant="icon" className="size-14 rounded-2xl border border-primary/15 bg-primary/10 text-primary">
+        <EmptyMedia
+          variant="icon"
+          className="size-14 rounded-2xl border border-primary/15 bg-primary/10 text-primary"
+        >
           <Icon className="size-6" />
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
@@ -255,7 +286,7 @@ export function EmptyStateSection({
       </EmptyHeader>
       {action ? <EmptyContent>{action}</EmptyContent> : null}
     </Empty>
-  )
+  );
 }
 
 export function SplitPanelSection({
@@ -263,9 +294,14 @@ export function SplitPanelSection({
   secondary,
   className,
 }: {
-  primary: React.ReactNode
-  secondary: React.ReactNode
-  className?: string
+  primary: React.ReactNode;
+  secondary: React.ReactNode;
+  className?: string;
 }) {
-  return <div className={cn("app-section-grid", className)}>{primary}{secondary}</div>
+  return (
+    <div className={cn("app-section-grid", className)}>
+      {primary}
+      {secondary}
+    </div>
+  );
 }

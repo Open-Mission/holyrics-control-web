@@ -1,77 +1,89 @@
-import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { SettingsIcon, SaveIcon, RefreshCwIcon, FileJsonIcon } from 'lucide-react'
-import { toast } from 'sonner'
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  SettingsIcon,
+  SaveIcon,
+  RefreshCwIcon,
+  FileJsonIcon,
+} from "lucide-react";
+import { toast } from "sonner";
 
 import {
   getGetApiV1SystemGlobalSettingsQueryKey,
   useGetApiV1SystemGlobalSettings,
   usePostApiV1SystemGlobalSettings,
-} from '@/lib/holyrics'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/lib/holyrics";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   coerceGlobalSettings,
   setCachedGlobalSettings,
   type HolyricsGlobalSettings,
-} from '@/lib/global-settings'
+} from "@/lib/global-settings";
 
 function formatSettings(value: HolyricsGlobalSettings) {
-  return JSON.stringify(value, null, 2)
+  return JSON.stringify(value, null, 2);
 }
 
 export function PreferencesSettings() {
-  const queryClient = useQueryClient()
-  const { data, isLoading, error, refetch, isFetching } = useGetApiV1SystemGlobalSettings()
-  const saveMutation = usePostApiV1SystemGlobalSettings()
+  const queryClient = useQueryClient();
+  const { data, isLoading, error, refetch, isFetching } =
+    useGetApiV1SystemGlobalSettings();
+  const saveMutation = usePostApiV1SystemGlobalSettings();
 
-  const settings = coerceGlobalSettings(data?.data)
-  const displayMode = settings.initial_slide?.display_mode ?? 'indefinido'
-  const loadedValue = data ? formatSettings(settings) : '{}'
+  const settings = coerceGlobalSettings(data?.data);
+  const displayMode = settings.initial_slide?.display_mode ?? "indefinido";
+  const loadedValue = data ? formatSettings(settings) : "{}";
 
-  const [editorValue, setEditorValue] = useState('')
-  const [hasLocalEdits, setHasLocalEdits] = useState(false)
-  const visibleValue = hasLocalEdits ? editorValue : loadedValue
-  const isDirty = hasLocalEdits && visibleValue !== loadedValue
+  const [editorValue, setEditorValue] = useState("");
+  const [hasLocalEdits, setHasLocalEdits] = useState(false);
+  const visibleValue = hasLocalEdits ? editorValue : loadedValue;
+  const isDirty = hasLocalEdits && visibleValue !== loadedValue;
 
   const handleRefresh = async () => {
     try {
-      const result = await refetch()
+      const result = await refetch();
       if (result.data) {
-        setHasLocalEdits(false)
-        setEditorValue('')
-        toast.success('Global settings recarregadas.')
+        setHasLocalEdits(false);
+        setEditorValue("");
+        toast.success("Global settings recarregadas.");
       }
     } catch {
-      toast.error('Erro ao recarregar global settings.')
+      toast.error("Erro ao recarregar global settings.");
     }
-  }
+  };
 
   const handleSave = async () => {
-    let parsed: HolyricsGlobalSettings
+    let parsed: HolyricsGlobalSettings;
 
     try {
-      parsed = coerceGlobalSettings(JSON.parse(visibleValue))
+      parsed = coerceGlobalSettings(JSON.parse(visibleValue));
     } catch {
-      toast.error('JSON inválido. Corrija antes de salvar.')
-      return
+      toast.error("JSON inválido. Corrija antes de salvar.");
+      return;
     }
 
     try {
-      await saveMutation.mutateAsync({ data: parsed })
-      setCachedGlobalSettings(parsed)
-      const formatted = formatSettings(parsed)
-      setEditorValue(formatted)
-      setHasLocalEdits(false)
+      await saveMutation.mutateAsync({ data: parsed });
+      setCachedGlobalSettings(parsed);
+      const formatted = formatSettings(parsed);
+      setEditorValue(formatted);
+      setHasLocalEdits(false);
       await queryClient.invalidateQueries({
         queryKey: getGetApiV1SystemGlobalSettingsQueryKey(),
-      })
-      toast.success('Global settings salvas com sucesso.')
+      });
+      toast.success("Global settings salvas com sucesso.");
     } catch {
-      toast.error('Erro ao salvar global settings.')
+      toast.error("Erro ao salvar global settings.");
     }
-  }
+  };
 
   return (
     <Card className="shadow-md bg-card/50 backdrop-blur-sm border-muted/20 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -81,8 +93,8 @@ export function PreferencesSettings() {
           Global Settings
         </CardTitle>
         <CardDescription>
-          Visualize e salve as configurações globais completas do Holyrics. A regra de slides de música usa
-          `initial_slide.display_mode`.
+          Visualize e salve as configurações globais completas do Holyrics. A
+          regra de slides de música usa `initial_slide.display_mode`.
         </CardDescription>
       </CardHeader>
 
@@ -94,7 +106,8 @@ export function PreferencesSettings() {
             </p>
             <p className="mt-2 text-lg font-semibold">{displayMode}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Em música: `remove` envia o índice original; qualquer outro valor envia `index + 1`.
+              Em música: `remove` envia o índice original; qualquer outro valor
+              envia `index + 1`.
             </p>
           </div>
 
@@ -103,10 +116,17 @@ export function PreferencesSettings() {
               Estado do Editor
             </p>
             <p className="mt-2 text-lg font-semibold">
-              {isLoading ? 'Carregando...' : error ? 'Erro ao carregar' : isDirty ? 'Alterado' : 'Sincronizado'}
+              {isLoading
+                ? "Carregando..."
+                : error
+                  ? "Erro ao carregar"
+                  : isDirty
+                    ? "Alterado"
+                    : "Sincronizado"}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              O JSON abaixo é enviado integralmente para `POST /api/v1/system/global-settings`.
+              O JSON abaixo é enviado integralmente para `POST
+              /api/v1/system/global-settings`.
             </p>
           </div>
         </div>
@@ -129,7 +149,9 @@ export function PreferencesSettings() {
                 onClick={handleRefresh}
                 disabled={isFetching}
               >
-                <RefreshCwIcon className={`size-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+                <RefreshCwIcon
+                  className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
+                />
                 Recarregar
               </Button>
               <Button
@@ -149,15 +171,15 @@ export function PreferencesSettings() {
             <Textarea
               value={visibleValue}
               onChange={(event) => {
-                setHasLocalEdits(true)
-                setEditorValue(event.target.value)
+                setHasLocalEdits(true);
+                setEditorValue(event.target.value);
               }}
-              className="min-h-[420px] resize-y font-mono text-xs leading-5 bg-background/80"
+              className="min-h-105 resize-y font-mono text-xs leading-5 bg-background/80"
               spellCheck={false}
             />
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

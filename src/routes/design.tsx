@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import {
   BellRingIcon,
   LayoutGridIcon,
@@ -8,7 +8,7 @@ import {
   SearchIcon,
   Settings2Icon,
   SparklesIcon,
-} from "lucide-react"
+} from "lucide-react";
 
 import {
   AppPage,
@@ -21,18 +21,24 @@ import {
   StatusChip,
   SurfaceCard,
   ToolbarRow,
-} from "@/components/design-system"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+} from "@/components/design-system";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/design")({
   component: DesignPage,
-})
+});
 
+// eslint-disable-next-line react-refresh/only-export-components
 function DesignPage() {
   return (
     <AppPage>
@@ -40,9 +46,9 @@ function DesignPage() {
         eyebrow="Design System"
         title="Minimalismo elegante sobre a base do shadcn"
         description="Esta rota é a referência canônica do sistema visual do projeto. Tudo o que for layout, ritmo, estados e seções de produto deve partir daqui, respeitando os tokens e o preset já configurados."
+        meta={<StatusChip tone="success">mobile, tablet e desktop</StatusChip>}
         actions={
           <>
-            <StatusChip tone="success">mobile, tablet e desktop</StatusChip>
             <Button variant="outline">
               <SparklesIcon data-icon="inline-start" />
               pronto para produção
@@ -163,7 +169,8 @@ function DesignPage() {
             <CardHeader>
               <CardTitle>Tabs como shell de workspace</CardTitle>
               <CardDescription>
-                Configurações e áreas densas continuam usando composição padrão do shadcn.
+                Configurações e áreas densas continuam usando composição padrão
+                do shadcn.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -175,7 +182,8 @@ function DesignPage() {
                 </TabsList>
                 <TabsContent value="overview" className="m-0">
                   <div className="rounded-xl border bg-background px-4 py-5 text-sm text-muted-foreground">
-                    O shell padroniza margens, profundidade e densidade sem esconder a API dos componentes.
+                    O shell padroniza margens, profundidade e densidade sem
+                    esconder a API dos componentes.
                   </div>
                 </TabsContent>
                 <TabsContent value="content" className="m-0" />
@@ -187,21 +195,25 @@ function DesignPage() {
           <SurfaceCard className="rounded-2xl border">
             <CardHeader>
               <CardTitle>Alertas sem ruído visual</CardTitle>
-              <CardDescription>Estados são claros sem romper a calma visual do layout.</CardDescription>
+              <CardDescription>
+                Estados são claros sem romper a calma visual do layout.
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <Alert className="rounded-xl border">
                 <BellRingIcon />
                 <AlertTitle>Conexão estável</AlertTitle>
                 <AlertDescription>
-                  Use alertas para estados que precisam de contexto curto e acionável.
+                  Use alertas para estados que precisam de contexto curto e
+                  acionável.
                 </AlertDescription>
               </Alert>
               <Alert variant="destructive" className="rounded-xl border">
                 <BellRingIcon />
                 <AlertTitle>Falha de autenticação</AlertTitle>
                 <AlertDescription>
-                  O componente semântico substitui blocos improvisados com borda e fundo manual.
+                  O componente semântico substitui blocos improvisados com borda
+                  e fundo manual.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -218,7 +230,10 @@ function DesignPage() {
             <SurfaceCard className="rounded-2xl border">
               <CardHeader>
                 <CardTitle>Preview / workspace principal</CardTitle>
-                <CardDescription>O conteúdo principal recebe espaço e foco sem abandonar o grid.</CardDescription>
+                <CardDescription>
+                  O conteúdo principal recebe espaço e foco sem abandonar o
+                  grid.
+                </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="flex aspect-video items-center justify-center rounded-2xl border bg-muted/50 text-muted-foreground">
@@ -241,19 +256,22 @@ function DesignPage() {
               <CardHeader>
                 <CardTitle>Lista ou resumo lateral</CardTitle>
                 <CardDescription>
-                  A coluna secundária agrupa informação derivada, ações auxiliares ou atividades recentes.
+                  A coluna secundária agrupa informação derivada, ações
+                  auxiliares ou atividades recentes.
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
-                {["Abertura", "Momento de louvor", "Leitura", "Avisos"].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center justify-between rounded-xl border bg-background px-4 py-3"
-                  >
-                    <span className="text-sm font-medium">{item}</span>
-                    <StatusChip tone="neutral">ativo</StatusChip>
-                  </div>
-                ))}
+                {["Abertura", "Momento de louvor", "Leitura", "Avisos"].map(
+                  (item) => (
+                    <div
+                      key={item}
+                      className="flex items-center justify-between rounded-xl border bg-background px-4 py-3"
+                    >
+                      <span className="text-sm font-medium">{item}</span>
+                      <StatusChip tone="neutral">ativo</StatusChip>
+                    </div>
+                  ),
+                )}
               </CardContent>
             </SurfaceCard>
           }
@@ -267,5 +285,5 @@ function DesignPage() {
         action={<Button>Adicionar conteúdo</Button>}
       />
     </AppPage>
-  )
+  );
 }

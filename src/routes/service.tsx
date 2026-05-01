@@ -20,7 +20,6 @@ import {
   SectionBlock,
   StatusChip,
   SurfaceCard,
-  ToolbarRow,
 } from "@/components/design-system";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -124,19 +123,19 @@ function ServicePage() {
   );
 
   const resultSummary = search ? (
-    <Badge variant="secondary" className="rounded-full">
+    <Badge variant="secondary" className="rounded-full mt-4">
       {filteredLyrics.length + filteredMedia.length} resultado
       {filteredLyrics.length + filteredMedia.length !== 1 ? "s" : ""}
     </Badge>
   ) : (
-    <span className="text-sm text-muted-foreground">
+    <span className="text-sm text-muted-foreground hidden">
       Encontre rapidamente músicas, letras e mídias da programação atual.
     </span>
   );
 
   if (isLoading) {
     return (
-      <AppPage narrow>
+      <AppPage>
         <EmptyStateSection
           icon={RefreshCw}
           title="Carregando programação"
@@ -150,7 +149,7 @@ function ServicePage() {
 
   if (isError) {
     return (
-      <AppPage narrow>
+      <AppPage>
         <EmptyStateSection
           icon={WifiOff}
           title="Sem conexão com o Holyrics"
@@ -173,39 +172,34 @@ function ServicePage() {
         eyebrow="Programação"
         title="Serviço"
         description="Visualize a programação atual, troque o evento ativo e apresente letras ou mídias com menos ruído e mais contexto."
-        actions={
+        meta={
           <>
             <StatusChip tone="success">ao vivo</StatusChip>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isLoading}
-              className="gap-2"
-            >
-              <RefreshCw className={isLoading ? "animate-spin" : ""} />
-              Atualizar
-            </Button>
+            <StatusChip tone="neutral">
+              {scheduleData?.datetime || "sem horário"}
+            </StatusChip>
+            <StatusChip tone="primary">{lyricsPlaylist.length} letras</StatusChip>
+            <StatusChip tone="neutral">{mediaPlaylist.length} mídias</StatusChip>
+            <StatusChip tone={isSettingSchedule ? "primary" : "success"}>
+              {isSettingSchedule
+                ? "alterando programação"
+                : "pronto para apresentar"}
+            </StatusChip>
           </>
         }
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className="gap-2"
+          >
+            <RefreshCw className={isLoading ? "animate-spin" : ""} />
+            Atualizar
+          </Button>
+        }
       />
-
-      <ToolbarRow>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusChip tone="neutral">
-            {scheduleData?.datetime || "sem horário"}
-          </StatusChip>
-          <StatusChip tone="primary">{lyricsPlaylist.length} letras</StatusChip>
-          <StatusChip tone="neutral">{mediaPlaylist.length} mídias</StatusChip>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusChip tone={isSettingSchedule ? "primary" : "success"}>
-            {isSettingSchedule
-              ? "alterando programação"
-              : "pronto para apresentar"}
-          </StatusChip>
-        </div>
-      </ToolbarRow>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <MetricCard
@@ -244,11 +238,8 @@ function ServicePage() {
             />
 
             <Tabs defaultValue="lyrics" className="w-full gap-4">
-              <TabsList className="w-full flex-wrap justify-start rounded-2xl border bg-muted/60 h-8 flex-1 gap-1">
-                <TabsTrigger
-                  value="lyrics"
-                  className="flex-1 rounded-xl px-4 sm:flex-none"
-                >
+              <TabsList className="w-full flex-wrap justify-start border bg-muted/60 h-8 flex-1 gap-1">
+                <TabsTrigger value="lyrics" className="px-4 justify-center">
                   <Music data-icon="inline-start" />
                   Letras
                   <Badge
@@ -258,10 +249,7 @@ function ServicePage() {
                     {filteredLyrics.length}
                   </Badge>
                 </TabsTrigger>
-                <TabsTrigger
-                  value="media"
-                  className=" flex-1 rounded-xl px-4 sm:flex-none"
-                >
+                <TabsTrigger value="media" className="px-4">
                   <Film data-icon="inline-start" />
                   Mídias
                   <Badge
@@ -321,7 +309,7 @@ function ServicePage() {
                 onValueChange={handleScheduleChange}
                 disabled={isSettingSchedule}
               >
-                <SelectTrigger className="h-auto w-full rounded-2xl border bg-background px-4 py-3.5 shadow-none">
+                <SelectTrigger className="w-full border bg-background px-4 py-8 shadow-none">
                   <div className="flex min-w-0 flex-col items-start gap-1 text-left">
                     <span className="truncate font-semibold">
                       {scheduleData?.name ||

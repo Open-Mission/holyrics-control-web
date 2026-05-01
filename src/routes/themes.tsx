@@ -4,10 +4,10 @@ import { HOLYRICS_SERVER_URL } from '@/lib/holyrics-instance'
 import {
   useGetApiV1BackgroundsCurrentTheme,
   useGetApiV1BackgroundsCurrent,
-  useGetApiV1PresentationCurrent,
   usePostApiV1BackgroundsSet,
   usePostApiV1BibleTheme
 } from '@/api/generated'
+import type { Theme } from '@/lib/db'
 import { useThemesStore } from '@/hooks/use-themes-store'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -49,24 +49,26 @@ function ThemesPage() {
     isLoading: isLoadingCurrent
   } = useGetApiV1BackgroundsCurrent()
 
-  const {
-    data: currentPresentationData,
-    refetch: refetchPresentation
-  } = useGetApiV1PresentationCurrent()
-
   const setBackgroundMutation = usePostApiV1BackgroundsSet()
   const setBibleThemeMutation = usePostApiV1BibleTheme()
 
   const themes = useMemo(() => {
-    return allThemes.filter((t: any) =>
+    return allThemes.filter((t: Theme) =>
       t.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
   }, [allThemes, searchQuery])
 
   const activeId = useMemo(() => {
-    if (currentThemeData?.data?.id) return String(currentThemeData.data.id)
-    if (currentBackgroundData?.data?.type === 'theme') return String(currentBackgroundData.data.id)
-    if (currentBackgroundData?.data?.id) return String(currentBackgroundData.data.id)
+    const currentTheme = currentThemeData?.data as { id?: string | number } | undefined
+    const currentBackground = currentBackgroundData?.data as
+      | { id?: string | number; type?: string }
+      | undefined
+
+    if (currentTheme?.id != null) return String(currentTheme.id)
+    if (currentBackground?.type === 'theme' && currentBackground.id != null) {
+      return String(currentBackground.id)
+    }
+    if (currentBackground?.id != null) return String(currentBackground.id)
     return null
   }, [currentThemeData, currentBackgroundData])
 
@@ -86,7 +88,6 @@ function ThemesPage() {
       // Refresh all states to ensure UI is in sync
       refetchCurrentTheme()
       refetchCurrentBackground()
-      refetchPresentation()
     } catch (error) {
       toast.error('Erro ao atualizar tema', { id: t })
     }
