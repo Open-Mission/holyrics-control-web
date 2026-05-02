@@ -1,4 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
+import { subscribeToServerContextChange } from '@/lib/server-context-events'
+import { getCurrentActiveServer } from '@/hooks/use-server-store'
+import { getServerSetupKey } from '@/lib/server-storage'
 
 export type SetupStep = 'songs' | 'themes' | 'playlists' // | 'images' | 'videos' | 'audios' (to be added later)
 
@@ -36,11 +39,14 @@ export interface SetupState {
   setupCompletedAt: string | null
 }
 
-const STORAGE_KEY = 'holyrics:setup'
+function loadSetupState(serverId?: string | null): SetupState {
+  const resolvedServerId = serverId ?? getCurrentActiveServer()?.id
+  if (!resolvedServerId) {
+    return { completed: [], dismissed: false, setupCompletedAt: null }
+  }
 
-function loadSetupState(): SetupState {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(getServerSetupKey(resolvedServerId))
     if (raw) return JSON.parse(raw) as SetupState
   } catch {
     // ignore
@@ -48,19 +54,26 @@ function loadSetupState(): SetupState {
   return { completed: [], dismissed: false, setupCompletedAt: null }
 }
 
-function saveSetupState(state: SetupState) {
+function saveSetupState(state: SetupState, serverId?: string | null) {
+  const resolvedServerId = serverId ?? getCurrentActiveServer()?.id
+  if (!resolvedServerId) {
+    return
+  }
+
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    localStorage.setItem(getServerSetupKey(resolvedServerId), JSON.stringify(state))
   } catch {
     // ignore
   }
 }
 
 export function useSetupStore() {
-  const [setupState, setSetupState] = useState<SetupState>(loadSetupState)
+  const [setupState, setSetupState] = useState<SetupState>(() => loadSetupState())
 
   useEffect(() => {
-    setSetupState(loadSetupState())
+    return subscribeToServerContextChange(({ serverId }) => {
+      setSetupState(loadSetupState(serverId))
+    })
   }, [])
 
   const markStepCompleted = useCallback((step: SetupStep) => {

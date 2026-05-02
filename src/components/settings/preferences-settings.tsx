@@ -9,10 +9,10 @@ import {
 import { toast } from "sonner";
 
 import {
-  getGetApiV1SystemGlobalSettingsQueryKey,
-  useGetApiV1SystemGlobalSettings,
-  usePostApiV1SystemGlobalSettings,
-} from "@/lib/holyrics";
+  holyricsKeys,
+  useGlobalSettingsQuery,
+  useSetGlobalSettingsMutation,
+} from "@/api/holyrics";
 import {
   Card,
   CardContent,
@@ -35,10 +35,10 @@ function formatSettings(value: HolyricsGlobalSettings) {
 export function PreferencesSettings() {
   const queryClient = useQueryClient();
   const { data, isLoading, error, refetch, isFetching } =
-    useGetApiV1SystemGlobalSettings();
-  const saveMutation = usePostApiV1SystemGlobalSettings();
+    useGlobalSettingsQuery();
+  const saveMutation = useSetGlobalSettingsMutation();
 
-  const settings = coerceGlobalSettings(data?.data);
+  const settings = coerceGlobalSettings(data);
   const displayMode = settings.initial_slide?.display_mode ?? "indefinido";
   const loadedValue = data ? formatSettings(settings) : "{}";
 
@@ -71,13 +71,13 @@ export function PreferencesSettings() {
     }
 
     try {
-      await saveMutation.mutateAsync({ data: parsed });
+      await saveMutation.mutateAsync(parsed);
       setCachedGlobalSettings(parsed);
       const formatted = formatSettings(parsed);
       setEditorValue(formatted);
       setHasLocalEdits(false);
       await queryClient.invalidateQueries({
-        queryKey: getGetApiV1SystemGlobalSettingsQueryKey(),
+        queryKey: holyricsKeys.systemGlobalSettings(),
       });
       toast.success("Global settings salvas com sucesso.");
     } catch {

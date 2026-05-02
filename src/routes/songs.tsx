@@ -61,7 +61,7 @@ function SongsPage() {
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState<PageSize>(50);
+  const [pageSize, setPageSize] = useState<PageSize>(25);
 
   const handleSongClick = useCallback((song: Song) => {
     openPanelForSong(song);

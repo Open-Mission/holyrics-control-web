@@ -1,4 +1,4 @@
-import { useGetApiV1SchedulesCurrent } from "@/api/generated";
+import { useCurrentScheduleQuery } from "@/api/holyrics";
 import { ServiceList } from "@/components/service/service-list";
 import { RefreshCw, Music, Layers } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,12 +18,9 @@ export function RecentActivities() {
     isLoading,
     isError,
     refetch,
-  } = useGetApiV1SchedulesCurrent();
+  } = useCurrentScheduleQuery();
 
-  const scheduleResponse = scheduleItems?.data;
-  const scheduleData = Array.isArray(scheduleResponse)
-    ? scheduleResponse[0]
-    : scheduleResponse;
+  const scheduleData = Array.isArray(scheduleItems) ? scheduleItems[0] : scheduleItems;
   const mediaPlaylist = scheduleData?.media_playlist || [];
   const hasItems = mediaPlaylist.length > 0;
 

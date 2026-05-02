@@ -1,6 +1,14 @@
 import { useSyncExternalStore, useCallback, useEffect } from 'react'
-import { getDb, type Theme } from '@/lib/db'
-import { getApiV1BackgroundsThemes } from '@/api/generated'
+import { type Theme } from '@/lib/db'
+import {
+  readServerMeta,
+  readServerThemes,
+  writeServerMeta,
+  writeServerThemes,
+} from '@/lib/db-server'
+import { listThemes } from '@/api/holyrics'
+import { getCurrentActiveServer } from '@/hooks/use-server-store'
+import { subscribeToServerContextChange } from '@/lib/server-context-events'
 
 // ─── Store state ──────────────────────────────────────────────────────────────
 
@@ -53,12 +61,22 @@ async function initialLoad() {
   if (_initialLoadDone) return
   _initialLoadDone = true
   _loadStartedAt = Date.now()
+  const serverId = getCurrentActiveServer()?.id
 
   try {
-    const db = await getDb()
+    if (!serverId) {
+      setState({
+        themes: [],
+        totalCount: 0,
+        lastSyncedAt: null,
+        isLoading: false,
+      })
+      return
+    }
+
     const [themes, metaRecord] = await Promise.all([
-      db.getAll('themes'),
-      db.get('meta', 'themesLastSyncedAt'),
+      readServerThemes(serverId),
+      readServerMeta(serverId, 'themes:lastSyncedAt'),
     ])
     setState({
       themes,
@@ -72,23 +90,22 @@ async function initialLoad() {
   }
 }
 
-initialLoad()
-
 // ─── Actions ─────────────────────────────────────────────────────────────────
 
 export async function syncThemes(): Promise<Theme[]> {
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) {
+    throw new Error('Nenhum servidor ativo configurado.')
+  }
+
   setState({ isSyncing: true, syncError: null })
   try {
-    const response = await getApiV1BackgroundsThemes()
-    const themes: Theme[] = (response as any).data || []
+    const response = await listThemes()
+    const themes = Array.isArray(response) ? (response as Theme[]) : []
 
-    const db = await getDb()
-    const tx = db.transaction(['themes', 'meta'], 'readwrite')
-    await tx.objectStore('themes').clear()
-    await Promise.all(themes.map((t) => tx.objectStore('themes').put(t)))
     const lastSyncedAt = new Date().toISOString()
-    await tx.objectStore('meta').put({ key: 'themesLastSyncedAt', value: lastSyncedAt })
-    await tx.done
+    await writeServerThemes(serverId, themes)
+    await writeServerMeta(serverId, 'themes:lastSyncedAt', lastSyncedAt)
 
     setState({ themes, totalCount: themes.length, lastSyncedAt, isSyncing: false, isLoading: false })
     return themes
@@ -105,6 +122,10 @@ export function useThemesStore() {
   const state = useSyncExternalStore(subscribe, getSnapshot)
 
   useEffect(() => {
+    initialLoad()
+  }, [])
+
+  useEffect(() => {
     if (!state.isLoading) return
     const elapsed = Date.now() - _loadStartedAt
     if (elapsed > 2000 && _state.isLoading) {
@@ -112,9 +133,15 @@ export function useThemesStore() {
     }
   }, [state.isLoading])
 
+  useEffect(() => {
+    return subscribeToServerContextChange(() => {
+      forceLoad()
+    })
+  }, [])
+
   return {
     ...state,
-    syncThemes: useCallback(syncThemes, []),
-    forceLoad: useCallback(forceLoad, []),
+    syncThemes: useCallback(() => syncThemes(), []),
+    forceLoad: useCallback(() => forceLoad(), []),
   }
 }

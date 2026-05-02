@@ -16,6 +16,9 @@ import { Route as ServiceRouteImport } from './routes/service'
 import { Route as PlaylistsRouteImport } from './routes/playlists'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MediaVideosRouteImport } from './routes/media/videos'
+import { Route as MediaImagesRouteImport } from './routes/media/images'
+import { Route as MediaAudiosRouteImport } from './routes/media/audios'
 
 const ThemesRoute = ThemesRouteImport.update({
   id: '/themes',
@@ -52,6 +55,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MediaVideosRoute = MediaVideosRouteImport.update({
+  id: '/media/videos',
+  path: '/media/videos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaImagesRoute = MediaImagesRouteImport.update({
+  id: '/media/images',
+  path: '/media/images',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaAudiosRoute = MediaAudiosRouteImport.update({
+  id: '/media/audios',
+  path: '/media/audios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +79,9 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/songs': typeof SongsRoute
   '/themes': typeof ThemesRoute
+  '/media/audios': typeof MediaAudiosRoute
+  '/media/images': typeof MediaImagesRoute
+  '/media/videos': typeof MediaVideosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +91,9 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/songs': typeof SongsRoute
   '/themes': typeof ThemesRoute
+  '/media/audios': typeof MediaAudiosRoute
+  '/media/images': typeof MediaImagesRoute
+  '/media/videos': typeof MediaVideosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +104,9 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/songs': typeof SongsRoute
   '/themes': typeof ThemesRoute
+  '/media/audios': typeof MediaAudiosRoute
+  '/media/images': typeof MediaImagesRoute
+  '/media/videos': typeof MediaVideosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +118,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/songs'
     | '/themes'
+    | '/media/audios'
+    | '/media/images'
+    | '/media/videos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +130,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/songs'
     | '/themes'
+    | '/media/audios'
+    | '/media/images'
+    | '/media/videos'
   id:
     | '__root__'
     | '/'
@@ -109,6 +142,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/songs'
     | '/themes'
+    | '/media/audios'
+    | '/media/images'
+    | '/media/videos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +155,9 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SongsRoute: typeof SongsRoute
   ThemesRoute: typeof ThemesRoute
+  MediaAudiosRoute: typeof MediaAudiosRoute
+  MediaImagesRoute: typeof MediaImagesRoute
+  MediaVideosRoute: typeof MediaVideosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +211,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/media/videos': {
+      id: '/media/videos'
+      path: '/media/videos'
+      fullPath: '/media/videos'
+      preLoaderRoute: typeof MediaVideosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media/images': {
+      id: '/media/images'
+      path: '/media/images'
+      fullPath: '/media/images'
+      preLoaderRoute: typeof MediaImagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media/audios': {
+      id: '/media/audios'
+      path: '/media/audios'
+      fullPath: '/media/audios'
+      preLoaderRoute: typeof MediaAudiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +243,9 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SongsRoute: SongsRoute,
   ThemesRoute: ThemesRoute,
+  MediaAudiosRoute: MediaAudiosRoute,
+  MediaImagesRoute: MediaImagesRoute,
+  MediaVideosRoute: MediaVideosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

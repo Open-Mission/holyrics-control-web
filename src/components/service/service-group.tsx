@@ -1,7 +1,4 @@
-import type {
-  GetApiV1Schedules200ItemLyricsPlaylistItem,
-  GetApiV1Schedules200ItemMediaPlaylistItem,
-} from "@/api/generated";
+import type { HolyricsScheduleItem } from "@/api/holyrics";
 import { ServiceItem } from "./service-item";
 import {
   Accordion,
@@ -18,9 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 
-type ScheduleItem =
-  | GetApiV1Schedules200ItemLyricsPlaylistItem
-  | GetApiV1Schedules200ItemMediaPlaylistItem;
+type ScheduleItem = HolyricsScheduleItem;
 
 interface ServiceGroupProps {
   title?: ScheduleItem;
@@ -94,7 +89,7 @@ export function ServiceGroup({ title, items, songLookup }: ServiceGroupProps) {
           <AccordionContent
             className={cn(
               "px-3 pb-3 pt-2 sm:px-4",
-              isActive ? "bg-primary/5" : "bg-background",
+              isActive ? "bg-primary/5" : "",
             )}
           >
             <SidebarGroupContent>

@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { usePlaylistsStore, type Playlist } from "@/hooks/use-playlists-store";
-import { postApiV1PlaylistsLoad } from "@/api/generated";
+import { loadSavedPlaylist } from "@/api/holyrics";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -77,7 +77,7 @@ function PlaylistsPage() {
   const handleLoadPlaylist = async (playlist: Playlist) => {
     setLoadingPlaylist(playlist.name);
     try {
-      await postApiV1PlaylistsLoad({ name: playlist.name });
+      await loadSavedPlaylist(playlist.name);
       toast.success(`Playlist "${playlist.name}" carregada no Holyrics!`);
     } catch (err) {
       toast.error("Erro ao carregar playlist.");

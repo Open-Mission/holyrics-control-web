@@ -248,7 +248,7 @@ export function SearchToolbar({
         ) : null}
       </InputGroup>
       {resultLabel || actions ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:flex-1">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:flex-1 mt-2">
           <div className="flex items-center">{resultLabel}</div>
           {actions ? (
             <div className="flex flex-wrap items-center gap-2">{actions}</div>

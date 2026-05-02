@@ -1,4 +1,6 @@
-import { getApiV1SystemGlobalSettings } from '@/lib/holyrics'
+import { getGlobalSettings } from '@/api/holyrics'
+import { getActiveServer } from '@/lib/server-registry'
+import { getServerGlobalSettingsKey } from '@/lib/server-storage'
 
 export interface HolyricsGlobalSettings {
   initial_slide?: {
@@ -8,8 +10,7 @@ export interface HolyricsGlobalSettings {
   [key: string]: unknown
 }
 
-let cachedGlobalSettings: HolyricsGlobalSettings | null = null
-const GLOBAL_SETTINGS_STORAGE_KEY = 'holyrics:global-settings'
+const cachedGlobalSettingsByServer = new Map<string, HolyricsGlobalSettings | null>()
 
 export function coerceGlobalSettings(value: unknown): HolyricsGlobalSettings {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -19,27 +20,49 @@ export function coerceGlobalSettings(value: unknown): HolyricsGlobalSettings {
   return value as HolyricsGlobalSettings
 }
 
-export function setCachedGlobalSettings(settings: HolyricsGlobalSettings) {
-  cachedGlobalSettings = settings
-  saveGlobalSettingsToStorage(settings)
+function resolveServerId(serverId?: string | null) {
+  return serverId ?? getActiveServer()?.id ?? null
 }
 
-export function getCachedGlobalSettings() {
-  if (cachedGlobalSettings) {
-    return cachedGlobalSettings
+export function setCachedGlobalSettings(
+  settings: HolyricsGlobalSettings,
+  serverId?: string | null
+) {
+  const resolvedServerId = resolveServerId(serverId)
+  if (!resolvedServerId) return
+
+  cachedGlobalSettingsByServer.set(resolvedServerId, settings)
+  saveGlobalSettingsToStorage(settings, resolvedServerId)
+}
+
+export function getCachedGlobalSettings(serverId?: string | null) {
+  const resolvedServerId = resolveServerId(serverId)
+  if (!resolvedServerId) {
+    return null
   }
 
-  cachedGlobalSettings = loadGlobalSettingsFromStorage()
-  return cachedGlobalSettings
+  if (cachedGlobalSettingsByServer.has(resolvedServerId)) {
+    return cachedGlobalSettingsByServer.get(resolvedServerId) ?? null
+  }
+
+  const persisted = loadGlobalSettingsFromStorage(resolvedServerId)
+  cachedGlobalSettingsByServer.set(resolvedServerId, persisted)
+  return persisted
 }
 
-export function loadGlobalSettingsFromStorage(): HolyricsGlobalSettings | null {
+export function loadGlobalSettingsFromStorage(
+  serverId?: string | null
+): HolyricsGlobalSettings | null {
+  const resolvedServerId = resolveServerId(serverId)
   if (typeof window === 'undefined') {
+    return null
+  }
+  if (!resolvedServerId) {
     return null
   }
 
   try {
-    const raw = window.localStorage.getItem(GLOBAL_SETTINGS_STORAGE_KEY)
+    const raw = window.localStorage.getItem(getServerGlobalSettingsKey(resolvedServerId))
     if (!raw) {
       return null
     }
@@ -50,33 +73,65 @@ export function loadGlobalSettingsFromStorage(): HolyricsGlobalSettings | null {
   }
 }
 
-export function saveGlobalSettingsToStorage(settings: HolyricsGlobalSettings) {
+export function saveGlobalSettingsToStorage(
+  settings: HolyricsGlobalSettings,
+  serverId?: string | null
+) {
+  const resolvedServerId = resolveServerId(serverId)
   if (typeof window === 'undefined') {
+    return
+  }
+  if (!resolvedServerId) {
     return
   }
 
   try {
-    window.localStorage.setItem(GLOBAL_SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+    window.localStorage.setItem(
+      getServerGlobalSettingsKey(resolvedServerId),
+      JSON.stringify(settings)
+    )
   } catch {
     // ignore localStorage persistence failures
   }
 }
 
-export async function fetchGlobalSettings() {
-  const cachedSettings = getCachedGlobalSettings()
+export function clearCachedGlobalSettings(serverId?: string | null) {
+  const resolvedServerId = resolveServerId(serverId)
+  if (!resolvedServerId) return
 
-  if (cachedSettings) {
+  cachedGlobalSettingsByServer.delete(resolvedServerId)
+}
+
+export async function fetchGlobalSettings(options?: {
+  serverId?: string | null
+  force?: boolean
+}) {
+  const resolvedServerId = resolveServerId(options?.serverId)
+  if (!resolvedServerId) {
+    throw new Error('Nenhum servidor ativo configurado.')
+  }
+
+  const cachedSettings = getCachedGlobalSettings(resolvedServerId)
+  if (cachedSettings && !options?.force) {
     return cachedSettings
   }
 
-  const response = await getApiV1SystemGlobalSettings()
-  const settings = coerceGlobalSettings(response.data)
-  setCachedGlobalSettings(settings)
-  return settings
+  try {
+    const response = await getGlobalSettings()
+    const settings = coerceGlobalSettings(response)
+    setCachedGlobalSettings(settings, resolvedServerId)
+    return settings
+  } catch (error) {
+    if (cachedSettings) {
+      return cachedSettings
+    }
+
+    throw error
+  }
 }
 
 export function getMusicPresentationApiIndex(index: number, settings?: HolyricsGlobalSettings | null) {
-  const resolvedSettings = settings ?? cachedGlobalSettings
+  const resolvedSettings = settings ?? getCachedGlobalSettings()
   const displayMode = resolvedSettings?.initial_slide?.display_mode
 
   if (displayMode === 'remove') {
@@ -87,6 +142,6 @@ export function getMusicPresentationApiIndex(index: number, settings?: HolyricsG
 }
 
 export function shouldUseInitialSlide(settings?: HolyricsGlobalSettings | null) {
-  const resolvedSettings = settings ?? cachedGlobalSettings
+  const resolvedSettings = settings ?? getCachedGlobalSettings()
   return resolvedSettings?.initial_slide?.display_mode !== 'remove'
 }

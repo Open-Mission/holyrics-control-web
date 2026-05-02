@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { useGetApiV1SystemTokenInfo } from '@/lib/holyrics'
+import { useTokenInfoQuery } from '@/api/holyrics'
 import { ActivityIcon, ServerIcon, ShieldCheckIcon, CpuIcon, SearchIcon, KeyRoundIcon } from 'lucide-react'
 
 /** Determines if a value should be rendered as a permission/badge list. */
@@ -29,10 +29,8 @@ function PermissionBadge({ value }: { value: boolean }) {
 }
 
 export function SystemSettings() {
-  const { data, isLoading, error } = useGetApiV1SystemTokenInfo()
+  const { data: tokenData, isLoading, error } = useTokenInfoQuery()
   const [permissionSearch, setPermissionSearch] = useState('')
-
-  const tokenData = data?.data as Record<string, unknown> | undefined
 
   /** Separate entries into scalar fields and permission (array) fields. */
   const { scalarEntries, permissionEntries } = useMemo(() => {

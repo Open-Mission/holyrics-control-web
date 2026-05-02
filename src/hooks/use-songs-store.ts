@@ -7,19 +7,34 @@
  * state updates whenever songs are synced or cleared from any component.
  */
 import { useSyncExternalStore, useCallback, useEffect } from 'react'
-import { getDb, type LyricSlide, type Song, type SongDetailRecord } from '@/lib/db'
-import { getApiV1Songs } from '@/lib/holyrics'
+import { type LyricSlide, type Song, type SongDetailRecord } from '@/lib/db'
+import {
+  deleteServerMeta,
+  readServerMeta,
+  readServerSongDetail,
+  readServerSongs,
+  writeServerMeta,
+  writeServerSongDetail,
+  writeServerSongs,
+} from '@/lib/db-server'
+import { listSongs } from '@/api/holyrics'
+import { getCurrentActiveServer } from '@/hooks/use-server-store'
+import { subscribeToServerContextChange } from '@/lib/server-context-events'
 
 // ─── song_details IDB helpers (exported for use-song-detail) ─────────────────
 
 export async function dbGetSongDetail(id: string): Promise<SongDetailRecord | undefined> {
-  const db = await getDb()
-  return db.get('song_details', id)
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) return undefined
+
+  return (await readServerSongDetail(serverId, id))?.payload
 }
 
 export async function dbPutSongDetail(detail: SongDetailRecord): Promise<void> {
-  const db = await getDb()
-  await db.put('song_details', detail)
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) return
+
+  await writeServerSongDetail(serverId, detail)
 }
 
 export async function dbUpdateSongDetailFields(
@@ -27,8 +42,10 @@ export async function dbUpdateSongDetailFields(
   updates: Partial<SongDetailRecord>,
   dirtyFields: string[]
 ): Promise<SongDetailRecord | null> {
-  const db = await getDb()
-  const existing = await db.get('song_details', id)
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) return null
+
+  const existing = await dbGetSongDetail(id)
   if (!existing) return null
   const updated: SongDetailRecord = {
     ...existing,
@@ -38,15 +55,21 @@ export async function dbUpdateSongDetailFields(
       new Set([...(existing._dirtyFields ?? []), ...dirtyFields])
     ),
   }
-  await db.put('song_details', updated)
+  await writeServerSongDetail(serverId, updated)
   return updated
 }
 
 export async function dbMarkSongDetailClean(id: string): Promise<void> {
-  const db = await getDb()
-  const existing = await db.get('song_details', id)
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) return
+
+  const existing = await dbGetSongDetail(id)
   if (!existing) return
-  await db.put('song_details', { ...existing, _dirty: false, _dirtyFields: [] })
+  await writeServerSongDetail(serverId, {
+    ...existing,
+    _dirty: false,
+    _dirtyFields: [],
+  })
 }
 
 // ─── Store state ──────────────────────────────────────────────────────────────
@@ -100,6 +123,7 @@ async function initialLoad() {
   if (_initialLoadDone) return
   _initialLoadDone = true
   _loadStartedAt = Date.now()
+  const serverId = getCurrentActiveServer()?.id
 
   // Safety: never stay stuck in loading state
   const safetyTimer = setTimeout(() => {
@@ -110,10 +134,19 @@ async function initialLoad() {
   }, 5000)
 
   try {
-    const db = await getDb()
+    if (!serverId) {
+      setState({
+        songs: [],
+        totalCount: 0,
+        lastSyncedAt: null,
+        isLoading: false,
+      })
+      return
+    }
+
     const [songs, metaRecord] = await Promise.all([
-      db.getAll('songs'),
-      db.get('meta', 'lastSyncedAt'),
+      readServerSongs(serverId),
+      readServerMeta(serverId, 'songs:lastSyncedAt'),
     ])
     setState({
       songs,
@@ -129,29 +162,22 @@ async function initialLoad() {
   }
 }
 
-// Kick off initial load immediately (module-level side effect)
-initialLoad()
-
 // ─── Actions ─────────────────────────────────────────────────────────────────
 
 export async function syncSongs(): Promise<Song[]> {
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) {
+    throw new Error('Nenhum servidor ativo configurado.')
+  }
+
   setState({ isSyncing: true, syncError: null })
   try {
-    const response = await getApiV1Songs()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const raw = response as any
-    let songs: Song[] = []
-    if (Array.isArray(raw?.data?.data)) songs = raw.data.data
-    else if (Array.isArray(raw?.data)) songs = raw.data
-    else if (Array.isArray(raw)) songs = raw
+    const response = await listSongs()
+    const songs: Song[] = Array.isArray(response) ? response as Song[] : []
 
-    const db = await getDb()
-    const tx = db.transaction(['songs', 'meta'], 'readwrite')
-    await tx.objectStore('songs').clear()
-    await Promise.all(songs.map((s) => tx.objectStore('songs').put(s)))
     const lastSyncedAt = new Date().toISOString()
-    await tx.objectStore('meta').put({ key: 'lastSyncedAt', value: lastSyncedAt })
-    await tx.done
+    await writeServerSongs(serverId, songs)
+    await writeServerMeta(serverId, 'songs:lastSyncedAt', lastSyncedAt)
 
     setState({ songs, totalCount: songs.length, lastSyncedAt, isSyncing: false, isLoading: false })
     return songs
@@ -163,11 +189,14 @@ export async function syncSongs(): Promise<Song[]> {
 }
 
 export async function clearSongs(): Promise<void> {
-  const db = await getDb()
-  const tx = db.transaction(['songs', 'meta'], 'readwrite')
-  await tx.objectStore('songs').clear()
-  await tx.objectStore('meta').delete('lastSyncedAt')
-  await tx.done
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) {
+    setState({ songs: [], totalCount: 0, lastSyncedAt: null, isLoading: false, syncError: null })
+    return
+  }
+
+  await writeServerSongs(serverId, [])
+  await deleteServerMeta(serverId, 'songs:lastSyncedAt')
   setState({ songs: [], totalCount: 0, lastSyncedAt: null, isLoading: false, syncError: null })
 }
 
@@ -175,6 +204,10 @@ export async function clearSongs(): Promise<void> {
 
 export function useSongsStore() {
   const state = useSyncExternalStore(subscribe, getSnapshot)
+
+  useEffect(() => {
+    initialLoad()
+  }, [])
 
   // If the store is still loading after 1.5s since module init, something is wrong — retry
   useEffect(() => {
@@ -190,12 +223,18 @@ export function useSongsStore() {
     return () => clearTimeout(t)
   }, [state.isLoading])
 
+  useEffect(() => {
+    return subscribeToServerContextChange(() => {
+      forceLoad()
+    })
+  }, [])
+
   return {
     ...state,
     hasSongs: state.totalCount > 0,
-    syncSongs: useCallback(syncSongs, []),
-    clearSongs: useCallback(clearSongs, []),
-    forceLoad: useCallback(forceLoad, []),
+    syncSongs: useCallback(() => syncSongs(), []),
+    clearSongs: useCallback(() => clearSongs(), []),
+    forceLoad: useCallback(() => forceLoad(), []),
   }
 }
 export type { LyricSlide, Song, SongDetailRecord }

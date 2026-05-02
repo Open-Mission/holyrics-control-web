@@ -10,13 +10,13 @@
  */
 import { useSyncExternalStore, useCallback } from 'react'
 import {
-  postApiV1SongsShow,
-  postApiV1PresentationGoToIndex,
-  postApiV1PresentationClose,
-  postApiV1PresentationF8Toggle,
-  postApiV1PresentationF9Toggle,
-  postApiV1PresentationF10Toggle,
-} from '@/lib/holyrics'
+  closeCurrentPresentation,
+  goToPresentationIndex,
+  showSong,
+  toggleF10,
+  toggleF8,
+  toggleF9,
+} from '@/api/holyrics'
 import {
   fetchGlobalSettings,
   getMusicPresentationApiIndex,
@@ -128,7 +128,7 @@ export async function startPresentation(
     panelOpen: true,
   })
   try {
-    await postApiV1SongsShow({ id: song.id, initialIndex: apiInitialIndex })
+    await showSong({ id: song.id, initialIndex: apiInitialIndex })
   } catch (err) {
     console.error('[Presentation] Failed to start:', err)
     throw err
@@ -151,7 +151,7 @@ export async function goToSlide(index: number): Promise<void> {
       apiIndex = getMusicPresentationApiIndex(index, settings)
     }
 
-    await postApiV1PresentationGoToIndex({ index: apiIndex })
+    await goToPresentationIndex(apiIndex)
   } catch (err) {
     setState({ activeIndex: prev, isNavigating: false })
     console.error('[Presentation] goToIndex failed:', err)
@@ -167,7 +167,7 @@ export async function goToSlide(index: number): Promise<void> {
 export async function closePresentation(): Promise<void> {
   setState({ isStarting: true })
   try {
-    await postApiV1PresentationClose()
+    await closeCurrentPresentation()
   } catch (err) {
     console.error('[Presentation] Close failed:', err)
   } finally {
@@ -201,7 +201,7 @@ export async function toggleWallpaper() {
   const prev = _state.f8
   setState({ f8: !prev })
   try {
-    await postApiV1PresentationF8Toggle()
+    await toggleF8()
   } catch (err) {
     console.error('[Presentation] toggleWallpaper failed:', err)
     setState({ f8: prev })
@@ -215,7 +215,7 @@ export async function toggleNoLyrics() {
   const prev = _state.f9
   setState({ f9: !prev })
   try {
-    await postApiV1PresentationF9Toggle()
+    await toggleF9()
   } catch (err) {
     console.error('[Presentation] toggleNoLyrics failed:', err)
     setState({ f9: prev })
@@ -229,7 +229,7 @@ export async function toggleBlackScreen() {
   const prev = _state.f10
   setState({ f10: !prev })
   try {
-    await postApiV1PresentationF10Toggle()
+    await toggleF10()
   } catch (err) {
     console.error('[Presentation] toggleBlackScreen failed:', err)
     setState({ f10: prev })
@@ -243,14 +243,18 @@ export function usePresentationStore() {
   return {
     ...state,
     isPresenting: state.song !== null,
-    openPanelForSong: useCallback(openPanelForSong, []),
-    closePanel: useCallback(closePanel, []),
-    startPresentation: useCallback(startPresentation, []),
-    goToSlide: useCallback(goToSlide, []),
-    closePresentation: useCallback(closePresentation, []),
-    clearPresentation: useCallback(clearPresentation, []),
-    toggleWallpaper: useCallback(toggleWallpaper, []),
-    toggleNoLyrics: useCallback(toggleNoLyrics, []),
-    toggleBlackScreen: useCallback(toggleBlackScreen, []),
+    openPanelForSong: useCallback((song: Song) => openPanelForSong(song), []),
+    closePanel: useCallback(() => closePanel(), []),
+    startPresentation: useCallback(
+      (song: Song, slides: LyricSlide[], initialIndex = 0, options?: { respectInitialSlide?: boolean }) =>
+        startPresentation(song, slides, initialIndex, options),
+      []
+    ),
+    goToSlide: useCallback((index: number) => goToSlide(index), []),
+    closePresentation: useCallback(() => closePresentation(), []),
+    clearPresentation: useCallback(() => clearPresentation(), []),
+    toggleWallpaper: useCallback(() => toggleWallpaper(), []),
+    toggleNoLyrics: useCallback(() => toggleNoLyrics(), []),
+    toggleBlackScreen: useCallback(() => toggleBlackScreen(), []),
   }
 }

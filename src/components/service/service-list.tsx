@@ -1,14 +1,11 @@
-import type {
-  GetApiV1Schedules200ItemLyricsPlaylistItem,
-  GetApiV1Schedules200ItemMediaPlaylistItem,
-} from '@/api/generated'
+import type { HolyricsScheduleItem } from '@/api/holyrics'
 import { ServiceGroup } from './service-group'
 import { ServiceItem } from './service-item'
 import { useMemo } from 'react'
 import { LayoutGrid, SearchX } from 'lucide-react'
 import { EmptyStateSection } from '@/components/design-system'
 
-type ScheduleItem = GetApiV1Schedules200ItemLyricsPlaylistItem | GetApiV1Schedules200ItemMediaPlaylistItem
+type ScheduleItem = HolyricsScheduleItem
 
 interface ServiceListProps {
   items: ScheduleItem[]

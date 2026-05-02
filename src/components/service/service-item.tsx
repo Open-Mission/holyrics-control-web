@@ -1,11 +1,10 @@
 import {
-  type GetApiV1Schedules200ItemLyricsPlaylistItem,
-  type GetApiV1Schedules200ItemMediaPlaylistItem,
-  usePostApiV1MediasPlayAudio,
-  usePostApiV1MediasPlayVideo,
-  usePostApiV1MediasShowImage,
-  usePostApiV1SchedulesShow,
-} from "@/api/generated";
+  type HolyricsScheduleItem,
+  usePlayAudioMutation,
+  usePlayVideoMutation,
+  useShowImageMutation,
+  useShowScheduleItemMutation,
+} from "@/api/holyrics";
 import {
   AlertCircle,
   Book,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { resolveActiveServerMediaPath } from "@/hooks/use-media-library";
 import { openPanelForSong } from "@/hooks/use-presentation-store";
 import {
   Item,
@@ -30,9 +30,7 @@ import {
 } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
 
-type ScheduleItem =
-  | GetApiV1Schedules200ItemLyricsPlaylistItem
-  | GetApiV1Schedules200ItemMediaPlaylistItem;
+type ScheduleItem = HolyricsScheduleItem;
 type SongLookup = Map<string, { [key: string]: unknown }>;
 
 interface ServiceItemProps {
@@ -67,16 +65,40 @@ function readNumber(
 }
 
 export function ServiceItem({ item, songLookup }: ServiceItemProps) {
-  const showScheduleItem = usePostApiV1SchedulesShow();
-  const playVideo = usePostApiV1MediasPlayVideo();
-  const playAudio = usePostApiV1MediasPlayAudio();
-  const showImage = usePostApiV1MediasShowImage();
+  const showScheduleItem = useShowScheduleItemMutation();
+  const playVideo = usePlayVideoMutation();
+  const playAudio = usePlayAudioMutation();
+  const showImage = useShowImageMutation();
 
   const song = item.song_id ? songLookup?.get(item.song_id) : undefined;
 
+  const resolveMediaReference = async (
+    mediaType: "image" | "video" | "audio",
+  ) => {
+    const candidate =
+      item.path ||
+      item.name ||
+      item.image ||
+      item.video ||
+      item.audio ||
+      item.id;
+
+    if (!candidate) {
+      throw new Error("Item de mídia sem referência utilizável.");
+    }
+
+    return (
+      (await resolveActiveServerMediaPath(mediaType, String(candidate))) ||
+      String(candidate)
+    );
+  };
+
   const handleShow = async () => {
     const id = item.id || item.song_id;
-    if (!id) return;
+    const isMediaItem =
+      item.type === "video" || item.type === "audio" || item.type === "image";
+
+    if (!id && !isMediaItem) return;
 
     try {
       if (
@@ -95,19 +117,18 @@ export function ServiceItem({ item, songLookup }: ServiceItemProps) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       } else if (item.type === "video") {
-        await playVideo.mutateAsync({ data: { id } });
+        await playVideo.mutateAsync(await resolveMediaReference("video"));
       } else if (item.type === "audio") {
-        await playAudio.mutateAsync({ data: { id } });
+        await playAudio.mutateAsync(await resolveMediaReference("audio"));
       } else if (item.type === "image") {
-        await showImage.mutateAsync({ data: { id } });
+        await showImage.mutateAsync(await resolveMediaReference("image"));
       } else {
         await showScheduleItem.mutateAsync({
-          data: {
-            id: item.id,
-            type: item.type,
-            song_id: item.song_id,
-            index: item.index,
-          },
+          id: item.id,
+          type: item.type,
+          song_id: item.song_id,
+          index: item.index,
+          name: item.name,
         });
       }
 

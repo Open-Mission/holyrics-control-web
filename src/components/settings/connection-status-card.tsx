@@ -1,16 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ActivityIcon } from 'lucide-react'
-import { useGetApiV1SystemConnectionStatus } from '@/lib/holyrics'
+import { useConnectionStatusQuery } from '@/api/holyrics'
+import { useServerStore } from '@/hooks/use-server-store'
 
 export function ConnectionStatusCard() {
-  const { data, error } = useGetApiV1SystemConnectionStatus({
-    query: {
-      refetchInterval: 5000,
-    }
-  })
+  const { activeServer } = useServerStore()
+  const { data, error } = useConnectionStatusQuery({ refetchInterval: 5000 })
 
   const isServerOnline = !error
-  const isHolyricsConnected = data?.data?.holyrics === 'connected'
+  const isHolyricsConnected = data?.holyrics === 'connected'
 
   return (
     <Card className="bg-muted/30 border-dashed shadow-sm">
@@ -24,7 +22,7 @@ export function ConnectionStatusCard() {
         <div className="flex items-center justify-between p-4 rounded-xl bg-background border shadow-sm group hover:border-primary/50 transition-all">
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Web Server</span>
-            <span className="text-sm font-bold tracking-tight">Controlador Central</span>
+            <span className="text-sm font-bold tracking-tight">{activeServer?.name ?? 'Sem contexto ativo'}</span>
           </div>
           <div className="flex items-center gap-2.5 bg-muted/30 px-3 py-1.5 rounded-full border">
             <div className={`size-2.5 rounded-full ${isServerOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]'}`} />

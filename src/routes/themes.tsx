@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
-import { HOLYRICS_SERVER_URL } from '@/lib/holyrics-instance'
 import {
-  useGetApiV1BackgroundsCurrentTheme,
-  useGetApiV1BackgroundsCurrent,
-  usePostApiV1BackgroundsSet,
-  usePostApiV1BibleTheme
-} from '@/api/generated'
+  resolveActiveHolyricsUrl,
+  useCurrentBackgroundQuery,
+  useCurrentThemeQuery,
+  useSetBibleThemeMutation,
+  useSetCurrentThemeMutation
+} from '@/api/holyrics'
 import type { Theme } from '@/lib/db'
 import { useThemesStore } from '@/hooks/use-themes-store'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,11 +27,11 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-
 export const Route = createFileRoute('/themes')({
   component: ThemesPage,
 })
 
+// eslint-disable-next-line react-refresh/only-export-components
 function ThemesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'global' | 'bible'>('global')
@@ -41,16 +41,16 @@ function ThemesPage() {
   const {
     data: currentThemeData,
     refetch: refetchCurrentTheme
-  } = useGetApiV1BackgroundsCurrentTheme()
+  } = useCurrentThemeQuery()
 
   const {
     data: currentBackgroundData,
     refetch: refetchCurrentBackground,
     isLoading: isLoadingCurrent
-  } = useGetApiV1BackgroundsCurrent()
+  } = useCurrentBackgroundQuery()
 
-  const setBackgroundMutation = usePostApiV1BackgroundsSet()
-  const setBibleThemeMutation = usePostApiV1BibleTheme()
+  const setBackgroundMutation = useSetCurrentThemeMutation()
+  const setBibleThemeMutation = useSetBibleThemeMutation()
 
   const themes = useMemo(() => {
     return allThemes.filter((t: Theme) =>
@@ -59,8 +59,8 @@ function ThemesPage() {
   }, [allThemes, searchQuery])
 
   const activeId = useMemo(() => {
-    const currentTheme = currentThemeData?.data as { id?: string | number } | undefined
-    const currentBackground = currentBackgroundData?.data as
+    const currentTheme = currentThemeData as { id?: string | number } | undefined
+    const currentBackground = currentBackgroundData as
       | { id?: string | number; type?: string }
       | undefined
 
@@ -78,17 +78,17 @@ function ThemesPage() {
       if (activeTab === 'global') {
         // Use setCurrentBackground for both immediate effect and global update
         // as suggested by the user and confirmed as the reliable endpoint.
-        await setBackgroundMutation.mutateAsync({ data: { id: themeId } })
+        await setBackgroundMutation.mutateAsync(themeId)
         toast.success('Tema global aplicado', { id: t })
       } else {
-        await setBibleThemeMutation.mutateAsync({ data: { id: themeId } })
+        await setBibleThemeMutation.mutateAsync(themeId)
         toast.success('Tema da Bíblia atualizado', { id: t })
       }
       
       // Refresh all states to ensure UI is in sync
       refetchCurrentTheme()
       refetchCurrentBackground()
-    } catch (error) {
+    } catch {
       toast.error('Erro ao atualizar tema', { id: t })
     }
   }
@@ -99,7 +99,7 @@ function ThemesPage() {
       await refetchCurrentTheme()
       await refetchCurrentBackground()
       toast.success('Temas atualizados')
-    } catch (error) {
+    } catch {
       toast.error('Erro ao atualizar temas')
     }
   }
@@ -136,7 +136,9 @@ function ThemesPage() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as any)}
+        onValueChange={(value) =>
+          setActiveTab(value === 'bible' ? 'bible' : 'global')
+        }
         className="space-y-6"
       >
         <div className="flex items-center justify-between border-b pb-1">
@@ -197,13 +199,14 @@ function ThemesPage() {
 }
 
 interface ThemeGridProps {
-  themes: any[]
+  themes: Theme[]
   activeId: string | number | null
   loading: boolean
   onSelect: (id: string) => void
   isSetting: boolean
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 function ThemeGrid({ themes, activeId, loading, onSelect, isSetting }: ThemeGridProps) {
   if (loading) {
     return (
@@ -246,9 +249,20 @@ function ThemeGrid({ themes, activeId, loading, onSelect, isSetting }: ThemeGrid
   )
 }
 
-function ThemeCard({ theme, isActive, onSelect, isSetting }: { theme: any, isActive: boolean, onSelect: () => void, isSetting: boolean }) {
+// eslint-disable-next-line react-refresh/only-export-components
+function ThemeCard({
+  theme,
+  isActive,
+  onSelect,
+  isSetting,
+}: {
+  theme: Theme
+  isActive: boolean
+  onSelect: () => void
+  isSetting: boolean
+}) {
   // Base URL for thumbnails
-  const baseUrl = HOLYRICS_SERVER_URL.endsWith('/') ? HOLYRICS_SERVER_URL.slice(0, -1) : HOLYRICS_SERVER_URL
+  const baseUrl = resolveActiveHolyricsUrl() ?? ''
   const thumbnailUrl = `${baseUrl}/api/v1/backgrounds/thumbnail?id=${theme.id}&type=theme`
 
   return (
@@ -265,7 +279,8 @@ function ThemeCard({ theme, isActive, onSelect, isSetting }: { theme: any, isAct
           className="size-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
             // Fallback if thumbnail fails
-            (e.target as any).src = 'https://placehold.co/400x225/101010/333333?text=Preview+Indisponível'
+            ;(e.target as HTMLImageElement).src =
+              'https://placehold.co/400x225/101010/333333?text=Preview+Indisponível'
           }}
         />
 

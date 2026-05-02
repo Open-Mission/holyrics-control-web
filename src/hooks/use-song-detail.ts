@@ -8,7 +8,7 @@
  * 4. Expõe `markSynced()` para limpar o flag dirty após enviar ao Holyrics.
  */
 import { useState, useEffect, useCallback } from 'react'
-import { getApiV1SongsId } from '@/lib/holyrics'
+import { getSong } from '@/api/holyrics'
 import type { LyricSlide, SongDetailRecord } from '@/lib/db'
 import {
   dbGetSongDetail,
@@ -48,10 +48,7 @@ export function useSongDetail(songId: string | null | undefined): UseSongDetailR
     async (id: string, existingRecord?: SongDetailRecord): Promise<SongDetailRecord | null> => {
       setIsFetchingFromApi(true)
       try {
-        const response = await getApiV1SongsId(id)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw = response as any
-        const data = raw?.data?.data ?? raw?.data ?? raw
+        const data = await getSong(id)
 
         if (!data?.id) throw new Error('Resposta inválida da API')
 
@@ -76,8 +73,10 @@ export function useSongDetail(songId: string | null | undefined): UseSongDetailR
 
   useEffect(() => {
     if (!songId) {
-      setDetail(null)
-      setLoadState('idle')
+      queueMicrotask(() => {
+        setDetail(null)
+        setLoadState('idle')
+      })
       return
     }
 

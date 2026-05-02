@@ -5,10 +5,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CalendarClock, Film, Music, RefreshCw, WifiOff } from "lucide-react";
 
 import {
-  useGetApiV1Schedules,
-  useGetApiV1SchedulesCurrent,
-  usePostApiV1SchedulesSet,
-} from "@/api/generated";
+  holyricsKeys,
+  useCurrentScheduleQuery,
+  useSchedulesQuery,
+  useSetCurrentScheduleMutation,
+} from "@/api/holyrics";
 import { ServiceList } from "@/components/service/service-list";
 import { useSongsStore } from "@/hooks/use-songs-store";
 import {
@@ -49,21 +50,16 @@ function ServicePage() {
     isLoading,
     isError,
     refetch,
-  } = useGetApiV1SchedulesCurrent();
-  const { data: allSchedules, isError: allSchedulesError } =
-    useGetApiV1Schedules({
-      month: now.getMonth() + 1,
-      year: now.getFullYear(),
-    });
-  const { mutate: setSchedule, isPending: isSettingSchedule } =
-    usePostApiV1SchedulesSet();
+  } = useCurrentScheduleQuery();
+  const { data: allSchedules, isError: allSchedulesError } = useSchedulesQuery({
+    month: now.getMonth() + 1,
+    year: now.getFullYear(),
+  });
+  const { mutate: setSchedule, isPending: isSettingSchedule } = useSetCurrentScheduleMutation();
 
   const [search, setSearch] = useState("");
 
-  const scheduleResponse = scheduleItems?.data;
-  const scheduleData = Array.isArray(scheduleResponse)
-    ? scheduleResponse[0]
-    : scheduleResponse;
+  const scheduleData = Array.isArray(scheduleItems) ? scheduleItems[0] : scheduleItems;
   const lyricsPlaylist = useMemo(
     () => scheduleData?.lyrics_playlist || [],
     [scheduleData?.lyrics_playlist],
@@ -75,16 +71,16 @@ function ServicePage() {
   const currentScheduleValue = String(
     scheduleData?.id || scheduleData?.datetime || "",
   );
-  const availableSchedules = allSchedules?.data || [];
+  const availableSchedules = allSchedules || [];
 
   const handleScheduleChange = (id: string) => {
     setSchedule(
-      { data: { event_id: id } },
+      id,
       {
         onSuccess: () => {
           toast.success("Programação alterada com sucesso");
           queryClient.invalidateQueries({
-            queryKey: ["/api/v1/schedules/current"],
+            queryKey: holyricsKeys.currentSchedule(),
           });
         },
         onError: () => {
@@ -330,7 +326,7 @@ function ServicePage() {
                   <SelectGroup>
                     <SelectLabel>Programações disponíveis</SelectLabel>
 
-                    {!allSchedules?.data && !allSchedulesError && (
+                    {availableSchedules.length === 0 && !allSchedulesError && (
                       <div className="flex items-center justify-center py-6">
                         <Spinner className="size-4 text-primary" />
                       </div>
@@ -366,7 +362,7 @@ function ServicePage() {
                       );
                     })}
 
-                    {availableSchedules.length === 0 && allSchedules?.data && (
+                    {availableSchedules.length === 0 && !allSchedulesError && (
                       <p className="px-3 py-4 text-center text-xs text-muted-foreground">
                         Nenhuma programação encontrada.
                       </p>

@@ -14,11 +14,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useGetApiV1SystemApiServerInfo } from "@/api/generated";
+import { useApiServerInfoQuery } from "@/api/holyrics";
 import { Maximize2, Columns, Layout, MonitorPlay, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SurfaceCard } from "@/components/design-system";
 import { Button } from "@/components/ui/button";
+import { useServerStore } from "@/hooks/use-server-store";
 import {
   Drawer,
   DrawerClose,
@@ -27,6 +28,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const VIEWS = [
   { id: "widescreen", label: "Widescreen", path: "/view/widescreen" },
@@ -54,40 +56,17 @@ const VIEWS = [
 ];
 
 export function ProjectionPreview() {
+  const { activeServer } = useServerStore();
   const [view1, setView1] = React.useState(VIEWS[0].path);
   const [view2, setView2] = React.useState(VIEWS[1].path);
   const [dualView, setDualView] = React.useState(false);
   const [isFullscreenOpen, setIsFullscreenOpen] = React.useState(false);
 
-  const { data: serverInfoResponse } = useGetApiV1SystemApiServerInfo();
-  const baseUrl = React.useMemo(() => {
-    const storedUrl =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("HOLYRICS_URL")
-        : null;
-    if (storedUrl)
-      return storedUrl.endsWith("/") ? storedUrl.slice(0, -1) : storedUrl;
+  const { data: serverInfoResponse } = useApiServerInfoQuery();
+  const previewBaseUrl = activeServer?.previewUrl?.replace(/\?.*$/, "").replace(/\/$/, "") ?? "";
+  const hasPreviewUrl = previewBaseUrl.length > 0;
 
-    const envUrl = import.meta.env.VITE_HOLYRICS_URL;
-    if (envUrl) return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
-
-    const serverData = readRecord(
-      serverInfoResponse &&
-        typeof serverInfoResponse === "object" &&
-        "data" in serverInfoResponse
-        ? serverInfoResponse.data
-        : undefined,
-    );
-    const ip =
-      serverData?.ip_list?.[0] ||
-      serverData?.ip ||
-      serverData?.address ||
-      window.location.hostname;
-    const port = serverData?.port || 8091;
-    return `http://${ip}:${port}`;
-  }, [serverInfoResponse]);
-
-  const getFullUrl = (path: string) => `${baseUrl}${path}`;
+  const getFullUrl = (path: string) => `${previewBaseUrl}${path}`;
 
   return (
     <>
@@ -165,13 +144,22 @@ export function ProjectionPreview() {
         </CardHeader>
 
         <CardContent className="flex lg:min-h-75 flex-1 px-4">
-          <PreviewGrid
-            dualView={dualView}
-            view1={view1}
-            view2={view2}
-            getFullUrl={getFullUrl}
-            className="h-full w-full"
-          />
+          {hasPreviewUrl ? (
+            <PreviewGrid
+              dualView={dualView}
+              view1={view1}
+              view2={view2}
+              getFullUrl={getFullUrl}
+              className="h-full w-full"
+            />
+          ) : (
+            <PreviewMissingState
+              serverName={activeServer?.name}
+              serverUrl={activeServer?.url}
+              serverInfoResponse={serverInfoResponse}
+              className="self-center"
+            />
+          )}
         </CardContent>
       </SurfaceCard>
 
@@ -202,18 +190,60 @@ export function ProjectionPreview() {
           </DrawerHeader>
 
           <div className="flex-1 overflow-auto p-4 sm:p-6">
-            <PreviewGrid
-              dualView={dualView}
-              view1={view1}
-              view2={view2}
-              getFullUrl={getFullUrl}
-              className=""
-              fullscreen
-            />
+            {hasPreviewUrl ? (
+              <PreviewGrid
+                dualView={dualView}
+                view1={view1}
+                view2={view2}
+                getFullUrl={getFullUrl}
+                className=""
+                fullscreen
+              />
+            ) : (
+              <PreviewMissingState
+                serverName={activeServer?.name}
+                serverUrl={activeServer?.url}
+                serverInfoResponse={serverInfoResponse}
+              />
+            )}
           </div>
         </DrawerContent>
       </Drawer>
     </>
+  );
+}
+
+function PreviewMissingState({
+  serverName,
+  serverUrl,
+  serverInfoResponse,
+  className,
+}: {
+  serverName?: string;
+  serverUrl?: string;
+  serverInfoResponse: unknown;
+  className?: string;
+}) {
+  const serverData = readRecord(serverInfoResponse);
+  const fallbackLocation =
+    serverData?.ip_list?.[0] ||
+    serverData?.ip ||
+    serverData?.address ||
+    serverUrl ||
+    null;
+
+  return (
+    <div className={cn("flex w-full items-center", className)}>
+      <Alert className="border-dashed bg-muted/30">
+        <Layout className="size-4 text-primary" />
+        <AlertTitle>Preview nao configurado</AlertTitle>
+        <AlertDescription>
+          Configure a URL do preview nas configuracoes do servidor
+          {serverName ? ` "${serverName}"` : ""} para liberar a projecao embutida.
+          {fallbackLocation ? ` Servidor atual: ${fallbackLocation}.` : ""}
+        </AlertDescription>
+      </Alert>
+    </div>
   );
 }
 

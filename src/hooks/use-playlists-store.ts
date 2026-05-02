@@ -1,6 +1,14 @@
 import { useSyncExternalStore, useCallback, useEffect } from 'react'
-import { getDb } from '@/lib/db'
-import { getApiV1PlaylistsSaved } from '@/api/generated'
+import {
+  deleteServerMeta,
+  readServerMeta,
+  readServerPlaylists,
+  writeServerMeta,
+  writeServerPlaylists,
+} from '@/lib/db-server'
+import { listSavedPlaylists } from '@/api/holyrics'
+import { getCurrentActiveServer } from '@/hooks/use-server-store'
+import { subscribeToServerContextChange } from '@/lib/server-context-events'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,12 +67,22 @@ async function initialLoad() {
   if (_initialLoadDone) return
   _initialLoadDone = true
   _loadStartedAt = Date.now()
+  const serverId = getCurrentActiveServer()?.id
 
   try {
-    const db = await getDb()
+    if (!serverId) {
+      setState({
+        playlists: [],
+        totalCount: 0,
+        lastSyncedAt: null,
+        isLoading: false,
+      })
+      return
+    }
+
     const [playlists, metaRecord] = await Promise.all([
-      db.getAll('playlists'),
-      db.get('meta', 'lastSyncedAt:playlists'),
+      readServerPlaylists(serverId),
+      readServerMeta(serverId, 'playlists:lastSyncedAt'),
     ])
     setState({
       playlists,
@@ -78,22 +96,18 @@ async function initialLoad() {
   }
 }
 
-// Kick off initial load immediately
-initialLoad()
-
 // ─── Actions ─────────────────────────────────────────────────────────────────
 
 export async function syncPlaylists(): Promise<Playlist[]> {
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) {
+    throw new Error('Nenhum servidor ativo configurado.')
+  }
+
   setState({ isSyncing: true, syncError: null })
   try {
-    const response = await getApiV1PlaylistsSaved()
-    
-    // Handle different response formats
-    let rawData: any = response.data
-    // If it's the standard Holyrics response { status: 'ok', data: ... }
-    if (rawData && typeof rawData === 'object' && 'status' in rawData && 'data' in rawData) {
-      rawData = rawData.data
-    }
+    const response = await listSavedPlaylists()
+    const rawData: unknown = response
 
     let playlists: Playlist[] = []
     if (Array.isArray(rawData)) {
@@ -106,14 +120,9 @@ export async function syncPlaylists(): Promise<Playlist[]> {
       })
     }
 
-    const db = await getDb()
-    const tx = db.transaction(['playlists', 'meta'], 'readwrite')
-    await tx.objectStore('playlists').clear()
-    await Promise.all(playlists.map((p) => tx.objectStore('playlists').put(p)))
-    
     const lastSyncedAt = new Date().toISOString()
-    await tx.objectStore('meta').put({ key: 'lastSyncedAt:playlists', value: lastSyncedAt })
-    await tx.done
+    await writeServerPlaylists(serverId, playlists)
+    await writeServerMeta(serverId, 'playlists:lastSyncedAt', lastSyncedAt)
 
     setState({ 
       playlists, 
@@ -131,11 +140,14 @@ export async function syncPlaylists(): Promise<Playlist[]> {
 }
 
 export async function clearPlaylists(): Promise<void> {
-  const db = await getDb()
-  const tx = db.transaction(['playlists', 'meta'], 'readwrite')
-  await tx.objectStore('playlists').clear()
-  await tx.objectStore('meta').delete('lastSyncedAt:playlists')
-  await tx.done
+  const serverId = getCurrentActiveServer()?.id
+  if (!serverId) {
+    setState({ playlists: [], totalCount: 0, lastSyncedAt: null, isLoading: false, syncError: null })
+    return
+  }
+
+  await writeServerPlaylists(serverId, [])
+  await deleteServerMeta(serverId, 'playlists:lastSyncedAt')
   setState({ playlists: [], totalCount: 0, lastSyncedAt: null, isLoading: false, syncError: null })
 }
 
@@ -143,6 +155,10 @@ export async function clearPlaylists(): Promise<void> {
 
 export function usePlaylistsStore() {
   const state = useSyncExternalStore(subscribe, getSnapshot)
+
+  useEffect(() => {
+    initialLoad()
+  }, [])
 
   useEffect(() => {
     if (!state.isLoading) return
@@ -157,11 +173,17 @@ export function usePlaylistsStore() {
     return () => clearTimeout(t)
   }, [state.isLoading])
 
+  useEffect(() => {
+    return subscribeToServerContextChange(() => {
+      forceLoad()
+    })
+  }, [])
+
   return {
     ...state,
     hasPlaylists: state.totalCount > 0,
-    syncPlaylists: useCallback(syncPlaylists, []),
-    clearPlaylists: useCallback(clearPlaylists, []),
-    forceLoad: useCallback(forceLoad, []),
+    syncPlaylists: useCallback(() => syncPlaylists(), []),
+    clearPlaylists: useCallback(() => clearPlaylists(), []),
+    forceLoad: useCallback(() => forceLoad(), []),
   }
 }

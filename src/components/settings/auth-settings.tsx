@@ -6,12 +6,38 @@ import { Button } from '@/components/ui/button'
 import { KeyIcon, LogInIcon, RefreshCwIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-import { getApiV1AuthLoginHash, getApiV1AuthLoginToken } from '@/lib/holyrics'
+import { authenticateWithHashSession, authenticateWithToken } from '@/api/holyrics'
 import { SetupWizard } from '@/components/setup-wizard'
 import { useSetupStore } from '@/hooks/use-setup-store'
+import { useServerStore } from '@/hooks/use-server-store'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { loadServerAuthState, saveServerAuthState } from '@/lib/server-storage'
 
 export function AuthSettings() {
-  const [token, setToken] = useState('')
+  const { activeServer } = useServerStore()
+
+  if (!activeServer) {
+    return (
+      <Alert>
+        <AlertTitle>Selecione ou cadastre um servidor</AlertTitle>
+        <AlertDescription>
+          A autenticação depende do contexto ativo. Use a aba <strong>Servidores</strong> para criar ou ativar um ambiente primeiro.
+        </AlertDescription>
+        </Alert>
+      )
+  }
+
+  return <AuthSettingsContent key={activeServer.id} serverId={activeServer.id} serverName={activeServer.name} />
+}
+
+function AuthSettingsContent({
+  serverId,
+  serverName,
+}: {
+  serverId: string
+  serverName: string
+}) {
+  const [token, setToken] = useState(() => loadServerAuthState(serverId)?.token ?? '')
   const [isLoading, setIsLoading] = useState(false)
   const [showSetup, setShowSetup] = useState(false)
   const queryClient = useQueryClient()
@@ -22,11 +48,12 @@ export function AuthSettings() {
     if (!token) return
     setIsLoading(true)
     try {
-      await getApiV1AuthLoginToken({ token })
+      await authenticateWithToken(token)
+      saveServerAuthState(serverId, { token: token.trim() })
       toast.success('Login efetuado com sucesso!')
       queryClient.invalidateQueries()
       if (setup.needsSetup) setShowSetup(true)
-    } catch (error) {
+    } catch {
       toast.error('Erro ao efetuar login com token')
     } finally {
       setIsLoading(false)
@@ -36,11 +63,11 @@ export function AuthSettings() {
   const handleLoginHash = async () => {
     setIsLoading(true)
     try {
-      await getApiV1AuthLoginHash()
+      await authenticateWithHashSession()
       toast.success('Sessão restaurada com sucesso!')
       queryClient.invalidateQueries()
       if (setup.needsSetup) setShowSetup(true)
-    } catch (error) {
+    } catch {
       toast.error('Nenhuma sessão ativa encontrada')
     } finally {
       setIsLoading(false)
@@ -60,7 +87,7 @@ export function AuthSettings() {
             Conectar / Re-autenticar
           </CardTitle>
           <CardDescription>
-            Conecte-se utilizando a sessão padrão. O servidor usará o token já configurado.
+            Conecte-se em <strong>{serverName}</strong> usando a sessão padrão. O servidor usará o token já configurado.
           </CardDescription>
         </CardHeader>
         <CardContent>

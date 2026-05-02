@@ -1,6 +1,8 @@
 import {
+  AudioLines,
   Blocks,
   Home,
+  Image,
   Music,
   PlaySquare,
   Settings,
@@ -8,6 +10,7 @@ import {
   Search,
   PlusCircle,
   CalendarDays,
+  Video,
 } from "lucide-react";
 
 import {
@@ -24,16 +27,11 @@ import {
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
 
-const items = [
+const navigationItems = [
   {
     title: "Início",
     url: "/",
     icon: Home,
-  },
-  {
-    title: "Músicas",
-    url: "/songs",
-    icon: Music,
   },
   {
     title: "Culto",
@@ -60,6 +58,32 @@ const items = [
     url: "/settings",
     icon: Settings,
   },
+];
+
+const mediaItems = [
+  {
+    title: "Músicas",
+    url: "/songs",
+    icon: Music,
+  },
+  {
+    title: "Imagens",
+    url: "/media/images",
+    icon: Image,
+  },
+  {
+    title: "Vídeos",
+    url: "/media/videos",
+    icon: Video,
+  },
+  {
+    title: "Áudios",
+    url: "/media/audios",
+    icon: AudioLines,
+  },
+];
+
+const utilityItems = [
   {
     title: "Design",
     url: "/design",
@@ -77,7 +101,55 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    className="h-10 rounded-xl px-3 text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                  >
+                    <Link to={item.url as never}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
+            Mídias
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mediaItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    className="h-10 rounded-xl px-3 text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                  >
+                    <Link to={item.url as never}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
+            Utilitários
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {utilityItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
