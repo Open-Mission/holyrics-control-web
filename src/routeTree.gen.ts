@@ -15,6 +15,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ServiceRouteImport } from './routes/service'
 import { Route as PlaylistsRouteImport } from './routes/playlists'
 import { Route as DesignRouteImport } from './routes/design'
+import { Route as BibleRouteImport } from './routes/bible'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MediaVideosRouteImport } from './routes/media/videos'
 import { Route as MediaImagesRouteImport } from './routes/media/images'
@@ -50,6 +51,11 @@ const DesignRoute = DesignRouteImport.update({
   path: '/design',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BibleRoute = BibleRouteImport.update({
+  id: '/bible',
+  path: '/bible',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const MediaAudiosRoute = MediaAudiosRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
   '/design': typeof DesignRoute
   '/playlists': typeof PlaylistsRoute
   '/service': typeof ServiceRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
   '/design': typeof DesignRoute
   '/playlists': typeof PlaylistsRoute
   '/service': typeof ServiceRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bible': typeof BibleRoute
   '/design': typeof DesignRoute
   '/playlists': typeof PlaylistsRoute
   '/service': typeof ServiceRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bible'
     | '/design'
     | '/playlists'
     | '/service'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bible'
     | '/design'
     | '/playlists'
     | '/service'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bible'
     | '/design'
     | '/playlists'
     | '/service'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BibleRoute: typeof BibleRoute
   DesignRoute: typeof DesignRoute
   PlaylistsRoute: typeof PlaylistsRoute
   ServiceRoute: typeof ServiceRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bible': {
+      id: '/bible'
+      path: '/bible'
+      fullPath: '/bible'
+      preLoaderRoute: typeof BibleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BibleRoute: BibleRoute,
   DesignRoute: DesignRoute,
   PlaylistsRoute: PlaylistsRoute,
   ServiceRoute: ServiceRoute,

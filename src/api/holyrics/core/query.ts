@@ -7,6 +7,9 @@ function serverIdOrFallback() {
 export const holyricsKeys = {
   all: () => ['holyrics', serverIdOrFallback()] as const,
   auth: () => [...holyricsKeys.all(), 'auth'] as const,
+  bible: (params?: unknown) => [...holyricsKeys.all(), 'bible', params ?? null] as const,
+  bibleVersions: () => [...holyricsKeys.all(), 'bible', 'versions'] as const,
+  bibleSettings: () => [...holyricsKeys.all(), 'bible', 'settings'] as const,
   system: () => [...holyricsKeys.all(), 'system'] as const,
   systemTokenInfo: () => [...holyricsKeys.system(), 'token-info'] as const,
   systemGlobalSettings: () => [...holyricsKeys.system(), 'global-settings'] as const,

@@ -31,6 +31,29 @@ export interface ServerInput {
   previewUrl?: string | null
 }
 
+function createServerId() {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID()
+  }
+
+  if (typeof globalThis.crypto?.getRandomValues === 'function') {
+    const bytes = globalThis.crypto.getRandomValues(new Uint8Array(16))
+    bytes[6] = (bytes[6] & 0x0f) | 0x40
+    bytes[8] = (bytes[8] & 0x3f) | 0x80
+
+    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
+    return [
+      hex.slice(0, 8),
+      hex.slice(8, 12),
+      hex.slice(12, 16),
+      hex.slice(16, 20),
+      hex.slice(20),
+    ].join('-')
+  }
+
+  return `server-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`
+}
+
 function readRegistryRecords(): ServerRecord[] {
   if (typeof window === 'undefined') {
     return []
@@ -64,7 +87,7 @@ function readRegistryRecords(): ServerRecord[] {
 export function createServerRecord(input: ServerInput): ServerRecord {
   const now = new Date().toISOString()
   return {
-    id: crypto.randomUUID(),
+    id: createServerId(),
     name: input.name.trim(),
     url: normalizeServerUrl(input.url),
     previewUrl:

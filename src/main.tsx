@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
+import { registerPwa } from './lib/pwa'
 import './index.css'
 
 // Create a new router instance
@@ -13,6 +14,8 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
+
+registerPwa()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -16,12 +16,14 @@ import { toast } from 'sonner'
 interface ServerFormState {
   name: string
   url: string
+  previewUrl: string
   authToken: string
 }
 
 const INITIAL_STATE: ServerFormState = {
   name: '',
   url: 'http://localhost:8091',
+  previewUrl: '',
   authToken: '',
 }
 
@@ -43,11 +45,19 @@ export function ServerOnboardingCard() {
       return
     }
 
+    if (form.previewUrl.trim() && !isValidHttpUrl(form.previewUrl)) {
+      toast.error('Use uma URL http(s) válida para o preview.')
+      return
+    }
+
     setIsSaving(true)
     try {
       const createdServer = createServer({
         name: form.name.trim(),
         url: normalizeServerUrl(form.url),
+        previewUrl: form.previewUrl.trim()
+          ? normalizeServerUrl(form.previewUrl)
+          : null,
       })
       if (form.authToken.trim()) {
         saveServerAuthState(createdServer.id, { token: form.authToken.trim() })
@@ -93,6 +103,21 @@ export function ServerOnboardingCard() {
               />
               <FieldDescription>
                 Use a URL direta do Holyrics. Para acesso web, inclua o `api_key` na query string.
+              </FieldDescription>
+            </Field>
+
+            <Field className="md:col-span-2">
+              <FieldLabel htmlFor="server-preview-url">URL do preview</FieldLabel>
+              <Input
+                id="server-preview-url"
+                value={form.previewUrl}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, previewUrl: event.target.value }))
+                }
+                placeholder="http://localhost:3000"
+              />
+              <FieldDescription>
+                Opcional. Use a URL da interface web para abrir o preview deste servidor.
               </FieldDescription>
             </Field>
 

@@ -19,22 +19,37 @@ export function ServerSwitcher() {
 
   if (!hasServers || !activeServer) {
     return (
-      <StatusChip className="hidden md:inline-flex">
-        sem servidor ativo
-      </StatusChip>
+      <Button
+        asChild
+        variant="ghost"
+        className="h-12 w-full justify-start gap-3 rounded-xl border border-dashed border-sidebar-border/80 bg-sidebar-accent/30 px-3 text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:border-solid"
+      >
+        <Link to="/settings" search={{ tab: 'servers', mode: 'create' } as never}>
+          <ServerIcon className="size-4 shrink-0 text-sidebar-primary" />
+          <span className="truncate group-data-[collapsible=icon]:hidden">sem servidor ativo</span>
+        </Link>
+      </Button>
     )
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="h-10 rounded-xl gap-2 px-3">
-          <ServerIcon className="size-4 text-primary" />
-          <span className="hidden max-w-40 truncate sm:inline">{activeServer.name}</span>
-          <ChevronsUpDownIcon className="size-4 text-muted-foreground" />
+        <Button
+          variant="ghost"
+          className="h-12 w-full justify-start gap-3 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 px-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+        >
+          <ServerIcon className="size-4 shrink-0 text-sidebar-primary" />
+          <div className="flex min-w-0 flex-1 flex-col items-start text-left group-data-[collapsible=icon]:hidden">
+            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/55">
+              Servidor
+            </span>
+            <span className="w-full truncate text-sm font-medium">{activeServer.name}</span>
+          </div>
+          <ChevronsUpDownIcon className="size-4 shrink-0 text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 rounded-xl">
+      <DropdownMenuContent align="start" side="right" className="w-72 rounded-xl">
         <DropdownMenuLabel className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
           Servidores
         </DropdownMenuLabel>

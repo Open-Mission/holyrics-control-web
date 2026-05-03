@@ -22,6 +22,7 @@ import {
   getMusicPresentationApiIndex,
   shouldUseInitialSlide,
 } from '@/lib/global-settings'
+import { emitPresentationStartedNotification } from '@/hooks/use-holyrics-connection'
 import type { Song } from './use-songs-store'
 import type { LyricSlide } from './use-song-detail'
 
@@ -129,6 +130,7 @@ export async function startPresentation(
   })
   try {
     await showSong({ id: song.id, initialIndex: apiInitialIndex })
+    void emitPresentationStartedNotification(song.title)
   } catch (err) {
     console.error('[Presentation] Failed to start:', err)
     throw err

@@ -1,6 +1,7 @@
 import {
   AudioLines,
   Blocks,
+  BookOpen,
   Home,
   Image,
   Music,
@@ -12,11 +13,14 @@ import {
   CalendarDays,
   Video,
 } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
+import { ServerSwitcher } from "@/components/server/server-switcher";
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -42,6 +46,11 @@ const navigationItems = [
     title: "Playlists",
     url: "/playlists",
     icon: PlaySquare,
+  },
+  {
+    title: "Bíblia",
+    url: "/bible",
+    icon: BookOpen,
   },
   {
     title: "Temas",
@@ -94,6 +103,9 @@ const utilityItems = [
 export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" variant="inset">
+      <SidebarHeader className="border-b border-sidebar-border/70 p-3">
+        <ServerSwitcher />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="px-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
@@ -176,6 +188,9 @@ export function AppSidebar() {
                 Nova Projeção
               </span>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <ModeToggle />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

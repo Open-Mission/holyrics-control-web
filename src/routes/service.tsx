@@ -2,7 +2,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CalendarClock, Film, Music, RefreshCw, WifiOff } from "lucide-react";
+import { Film, Music, RefreshCw, WifiOff } from "lucide-react";
 
 import {
   holyricsKeys,
@@ -15,7 +15,6 @@ import { useSongsStore } from "@/hooks/use-songs-store";
 import {
   AppPage,
   EmptyStateSection,
-  MetricCard,
   PageHeader,
   SearchToolbar,
   SectionBlock,
@@ -55,11 +54,14 @@ function ServicePage() {
     month: now.getMonth() + 1,
     year: now.getFullYear(),
   });
-  const { mutate: setSchedule, isPending: isSettingSchedule } = useSetCurrentScheduleMutation();
+  const { mutate: setSchedule, isPending: isSettingSchedule } =
+    useSetCurrentScheduleMutation();
 
   const [search, setSearch] = useState("");
 
-  const scheduleData = Array.isArray(scheduleItems) ? scheduleItems[0] : scheduleItems;
+  const scheduleData = Array.isArray(scheduleItems)
+    ? scheduleItems[0]
+    : scheduleItems;
   const lyricsPlaylist = useMemo(
     () => scheduleData?.lyrics_playlist || [],
     [scheduleData?.lyrics_playlist],
@@ -74,20 +76,17 @@ function ServicePage() {
   const availableSchedules = allSchedules || [];
 
   const handleScheduleChange = (id: string) => {
-    setSchedule(
-      id,
-      {
-        onSuccess: () => {
-          toast.success("Programação alterada com sucesso");
-          queryClient.invalidateQueries({
-            queryKey: holyricsKeys.currentSchedule(),
-          });
-        },
-        onError: () => {
-          toast.error("Erro ao alterar programação");
-        },
+    setSchedule(id, {
+      onSuccess: () => {
+        toast.success("Programação alterada com sucesso");
+        queryClient.invalidateQueries({
+          queryKey: holyricsKeys.currentSchedule(),
+        });
       },
-    );
+      onError: () => {
+        toast.error("Erro ao alterar programação");
+      },
+    });
   };
 
   const filteredLyrics = useMemo(() => {
@@ -170,12 +169,15 @@ function ServicePage() {
         description="Visualize a programação atual, troque o evento ativo e apresente letras ou mídias com menos ruído e mais contexto."
         meta={
           <>
-            <StatusChip tone="success">ao vivo</StatusChip>
             <StatusChip tone="neutral">
               {scheduleData?.datetime || "sem horário"}
             </StatusChip>
-            <StatusChip tone="primary">{lyricsPlaylist.length} letras</StatusChip>
-            <StatusChip tone="neutral">{mediaPlaylist.length} mídias</StatusChip>
+            <StatusChip tone="primary">
+              {lyricsPlaylist.length} letras
+            </StatusChip>
+            <StatusChip tone="neutral">
+              {mediaPlaylist.length} mídias
+            </StatusChip>
             <StatusChip tone={isSettingSchedule ? "primary" : "success"}>
               {isSettingSchedule
                 ? "alterando programação"
@@ -197,32 +199,7 @@ function ServicePage() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <MetricCard
-          label="Letras disponíveis"
-          value={lyricsPlaylist.length}
-          description="Inclui músicas, versos e blocos de texto da programação."
-          icon={Music}
-          tone="primary"
-        />
-        <MetricCard
-          label="Mídias disponíveis"
-          value={mediaPlaylist.length}
-          description="Vídeos, imagens e outros itens de apoio prontos para uso."
-          icon={Film}
-        />
-        <MetricCard
-          label="Programações no mês"
-          value={availableSchedules.length}
-          description="Use a troca rápida para navegar entre eventos disponíveis."
-          icon={CalendarClock}
-        />
-      </div>
-
-      <SectionBlock
-        title="Workspace do serviço"
-        description="O conteúdo principal fica focado na apresentação, enquanto o resumo e a troca de programação permanecem acessíveis ao lado em telas maiores."
-      >
+      <SectionBlock title="" description="">
         <div className="app-section-grid">
           <SurfaceCard className="gap-6 p-4 sm:p-6">
             <SearchToolbar

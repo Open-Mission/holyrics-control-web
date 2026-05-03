@@ -81,8 +81,8 @@ export function ProjectionPreview() {
               Visualize as saídas do Holyrics com foco no que está no ar agora.
             </CardDescription>
           </div>
-          <div className="flex flex-row gap-2 sm:items-end">
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+          <div className="flex w-full flex-col gap-2 sm:w-auto">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <div className="flex items-center gap-2 rounded-sm border bg-muted/60 px-3 py-1.5">
                 <Switch
                   id="dual-view"
@@ -143,7 +143,7 @@ export function ProjectionPreview() {
           </div>
         </CardHeader>
 
-        <CardContent className="flex lg:min-h-75 flex-1 px-4">
+        <CardContent className="flex flex-1 px-4 lg:min-h-75">
           {hasPreviewUrl ? (
             <PreviewGrid
               dualView={dualView}

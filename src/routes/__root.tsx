@@ -26,18 +26,19 @@ import {
 import { GlobalPresentationSync } from "@/components/presentation-sync";
 import { ImageIcon, MonitorPlayIcon, Music2Icon, VideoIcon } from "lucide-react";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ModeToggle } from "@/components/mode-toggle";
 import { StatusChip } from "@/components/design-system";
-import { ServerSwitcher } from "@/components/server/server-switcher";
 import { useServerStore } from "@/hooks/use-server-store";
 import { useEffect } from "react";
 import { fetchGlobalSettings } from "@/lib/global-settings";
+import { HolyricsRuntimeBanner } from "@/components/holyrics-runtime-banner";
+import { useHolyricsConnection } from "@/hooks/use-holyrics-connection";
 
 const queryClient = new QueryClient();
 
 // eslint-disable-next-line react-refresh/only-export-components
 function ServerRuntimeCoordinator() {
   const { activeServerId } = useServerStore()
+  useHolyricsConnection()
 
   useEffect(() => {
     queryClient.clear()
@@ -142,9 +143,10 @@ export const Route = createRootRoute({
       <ThemeProvider>
         <GlobalPresentationSync />
         <TooltipProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+              <HolyricsRuntimeBanner />
               <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-3 border-b border-border/70 bg-background/85 px-4 backdrop-blur md:px-6">
                 <SidebarTrigger className="-ml-1 rounded-xl" />
                 <Separator orientation="vertical" className="hidden md:block" />
@@ -166,18 +168,16 @@ export const Route = createRootRoute({
                   </div>
                 </div>
                 <div className="flex-1" />
-                <ServerSwitcher />
                 <StatusChip className="hidden xl:inline-flex">
-                  contexto local
+                  PWA local
                 </StatusChip>
                 <HeaderPresentationBadge />
-                <ModeToggle />
               </header>
               <div className="flex flex-1 flex-col">
                 <Outlet />
               </div>
             </SidebarInset>
-            <TanStackRouterDevtools />
+            {import.meta.env.DEV ? <TanStackRouterDevtools /> : null}
           </SidebarProvider>
           <PresentationStatusCard />
           <MediaPresentationStatusCard />

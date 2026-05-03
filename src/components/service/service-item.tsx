@@ -2,6 +2,7 @@ import {
   type HolyricsScheduleItem,
   usePlayAudioMutation,
   usePlayVideoMutation,
+  useShowBibleVerseMutation,
   useShowImageMutation,
   useShowScheduleItemMutation,
 } from "@/api/holyrics";
@@ -64,11 +65,16 @@ function readNumber(
   return undefined;
 }
 
+function isBibleVerseId(value: string | undefined) {
+  return typeof value === "string" && /^\d{8}$/.test(value.trim());
+}
+
 export function ServiceItem({ item, songLookup }: ServiceItemProps) {
   const showScheduleItem = useShowScheduleItemMutation();
   const playVideo = usePlayVideoMutation();
   const playAudio = usePlayAudioMutation();
   const showImage = useShowImageMutation();
+  const showBibleVerse = useShowBibleVerseMutation();
 
   const song = item.song_id ? songLookup?.get(item.song_id) : undefined;
 
@@ -97,15 +103,40 @@ export function ServiceItem({ item, songLookup }: ServiceItemProps) {
     const id = item.id || item.song_id;
     const isMediaItem =
       item.type === "video" || item.type === "audio" || item.type === "image";
+    const hasVerseReference = Boolean(
+      readString(item, "reference", "references", "name", "title"),
+    );
 
-    if (!id && !isMediaItem) return;
+    if (!id && !isMediaItem && !(item.type === "verse" && hasVerseReference)) {
+      return;
+    }
 
     try {
-      if (
+      if (item.type === "verse") {
+        const verseReference =
+          readString(item, "reference", "references", "name", "title") ?? "";
+        const verseId = isBibleVerseId(item.id) ? item.id : undefined;
+
+        if (!verseId && !verseReference) {
+          throw new Error("Versículo sem referência utilizável.");
+        }
+
+        await showBibleVerse.mutateAsync({
+          ...(verseId ? { id: verseId } : {}),
+          ...(!verseId && verseReference ? { references: verseReference } : {}),
+          ...(item.version ? { version: item.version } : {}),
+          showXVerses: item.show_x_verses ?? 1,
+          defaultAction:
+            item.default_action === "default" ||
+            item.default_action === "responsive_reading" ||
+            item.default_action === "only_reference"
+              ? item.default_action
+              : "responsive_reading",
+        });
+      } else if (
         item.song_id ||
         item.type === "song" ||
-        item.type === "lyrics" ||
-        item.type === "verse"
+        item.type === "lyrics"
       ) {
         openPanelForSong({
           id: item.song_id,
@@ -147,8 +178,8 @@ export function ServiceItem({ item, songLookup }: ServiceItemProps) {
     switch (item.type) {
       case "song":
       case "lyrics":
-      case "verse":
         return <Mic2 />;
+      case "verse":
       case "bible":
         return <Book />;
       case "image":
@@ -169,8 +200,8 @@ export function ServiceItem({ item, songLookup }: ServiceItemProps) {
     switch (item.type) {
       case "song":
       case "lyrics":
-      case "verse":
         return "Música";
+      case "verse":
       case "bible":
         return "Bíblia";
       case "image":
@@ -195,8 +226,7 @@ export function ServiceItem({ item, songLookup }: ServiceItemProps) {
   const isSongLike =
     item.song_id ||
     item.type === "song" ||
-    item.type === "lyrics" ||
-    item.type === "verse";
+    item.type === "lyrics";
   const subtitle = item.artist || readString(song, "artist", "author");
   const musicMetadata = [
     readString(item, "key") || readString(song, "key")
@@ -214,6 +244,7 @@ export function ServiceItem({ item, songLookup }: ServiceItemProps) {
 
   const isPending =
     showScheduleItem.isPending ||
+    showBibleVerse.isPending ||
     playVideo.isPending ||
     playAudio.isPending ||
     showImage.isPending;
